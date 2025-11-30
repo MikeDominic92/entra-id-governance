@@ -119,4 +119,16 @@ class Settings:
 
 
 # Global settings instance
-settings = Settings()
+_settings: Optional[Settings] = None
+
+
+def get_settings() -> Settings:
+    """Get or create global settings instance"""
+    global _settings
+    if _settings is None:
+        _settings = Settings()
+    return _settings
+
+
+# For backwards compatibility
+settings = get_settings()
