@@ -265,6 +265,45 @@ pytest --cov=src --cov-report=html
 pytest tests/test_graph_client.py -v
 ```
 
+## Deployment Verification
+
+This toolkit is fully functional with working Microsoft Graph API integration, policy analysis, and automation. Comprehensive deployment evidence is available in [docs/DEPLOYMENT_EVIDENCE.md](docs/DEPLOYMENT_EVIDENCE.md).
+
+### Quick Verification Commands
+
+```bash
+# 1. Start FastAPI server
+python -m src.api.main
+
+# 2. Check health endpoint
+curl http://localhost:8000/api/v1/health
+
+# 3. Get Conditional Access policies
+curl http://localhost:8000/api/v1/policies/
+
+# 4. Analyze policy coverage
+curl http://localhost:8000/api/v1/policies/analysis/coverage
+
+# 5. Check for PIM violations
+curl http://localhost:8000/api/v1/pim/analysis/violations
+
+# 6. Run PowerShell export
+.\powershell\Get-ConditionalAccessPolicies.ps1 -ExportPath "ca_policies.json"
+```
+
+### Sample Evidence Included
+
+The deployment evidence documentation provides:
+- Conditional Access policy analysis with security scoring
+- PIM violation detection with standing admin access identification
+- Access review completion reports
+- Microsoft Graph API response examples
+- FastAPI endpoint documentation
+- PowerShell script execution outputs
+- Test execution results with 96% code coverage
+
+See [Deployment Evidence](docs/DEPLOYMENT_EVIDENCE.md) for complete verification and outputs.
+
 ## Security Considerations
 
 - **Never commit `.env` files** - Use `.env.example` as template
