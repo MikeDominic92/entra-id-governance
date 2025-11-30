@@ -32,7 +32,7 @@ class ReviewProcessor:
         instance_id: str,
         decision_id: str,
         justification: str,
-        reviewer_id: str
+        reviewer_id: str,
     ) -> Dict[str, Any]:
         """
         Approve an access review decision
@@ -52,31 +52,26 @@ class ReviewProcessor:
         request_body = {
             "decision": "Approve",
             "justification": justification,
-            "reviewedBy": {
-                "id": reviewer_id
-            },
-            "reviewedDateTime": datetime.utcnow().isoformat() + "Z"
+            "reviewedBy": {"id": reviewer_id},
+            "reviewedDateTime": datetime.utcnow().isoformat() + "Z",
         }
 
         try:
             response = self.client.patch(
                 f"identityGovernance/accessReviews/definitions/{review_id}/instances/{instance_id}/decisions/{decision_id}",
-                request_body
+                request_body,
             )
 
             return {
                 "success": True,
                 "decision_id": decision_id,
                 "decision": "Approve",
-                "reviewed_datetime": datetime.utcnow().isoformat()
+                "reviewed_datetime": datetime.utcnow().isoformat(),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to approve decision: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def deny_decision(
         self,
@@ -84,7 +79,7 @@ class ReviewProcessor:
         instance_id: str,
         decision_id: str,
         justification: str,
-        reviewer_id: str
+        reviewer_id: str,
     ) -> Dict[str, Any]:
         """
         Deny an access review decision
@@ -104,31 +99,26 @@ class ReviewProcessor:
         request_body = {
             "decision": "Deny",
             "justification": justification,
-            "reviewedBy": {
-                "id": reviewer_id
-            },
-            "reviewedDateTime": datetime.utcnow().isoformat() + "Z"
+            "reviewedBy": {"id": reviewer_id},
+            "reviewedDateTime": datetime.utcnow().isoformat() + "Z",
         }
 
         try:
             response = self.client.patch(
                 f"identityGovernance/accessReviews/definitions/{review_id}/instances/{instance_id}/decisions/{decision_id}",
-                request_body
+                request_body,
             )
 
             return {
                 "success": True,
                 "decision_id": decision_id,
                 "decision": "Deny",
-                "reviewed_datetime": datetime.utcnow().isoformat()
+                "reviewed_datetime": datetime.utcnow().isoformat(),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to deny decision: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def bulk_approve(
         self,
@@ -136,7 +126,7 @@ class ReviewProcessor:
         instance_id: str,
         decision_ids: List[str],
         justification: str,
-        reviewer_id: str
+        reviewer_id: str,
     ) -> Dict[str, Any]:
         """
         Bulk approve multiple decisions
@@ -153,25 +143,19 @@ class ReviewProcessor:
         """
         logger.info(f"Bulk approving {len(decision_ids)} decisions")
 
-        results = {
-            "successful": [],
-            "failed": [],
-            "total": len(decision_ids)
-        }
+        results = {"successful": [], "failed": [], "total": len(decision_ids)}
 
         for decision_id in decision_ids:
             result = self.approve_decision(
-                review_id, instance_id, decision_id,
-                justification, reviewer_id
+                review_id, instance_id, decision_id, justification, reviewer_id
             )
 
             if result.get("success"):
                 results["successful"].append(decision_id)
             else:
-                results["failed"].append({
-                    "decision_id": decision_id,
-                    "error": result.get("error")
-                })
+                results["failed"].append(
+                    {"decision_id": decision_id, "error": result.get("error")}
+                )
 
         logger.info(
             f"Bulk approval complete: {len(results['successful'])} succeeded, "
@@ -185,7 +169,7 @@ class ReviewProcessor:
         review_id: str,
         instance_id: str,
         reviewer_id: str,
-        compliance_criteria: Optional[Dict[str, Any]] = None
+        compliance_criteria: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Automatically approve decisions for users meeting compliance criteria
@@ -231,9 +215,11 @@ class ReviewProcessor:
 
             if should_approve:
                 result = self.approve_decision(
-                    review_id, instance_id, decision["id"],
+                    review_id,
+                    instance_id,
+                    decision["id"],
                     "Auto-approved: Meets compliance criteria",
-                    reviewer_id
+                    reviewer_id,
                 )
 
                 if result.get("success"):
@@ -247,7 +233,7 @@ class ReviewProcessor:
             "success": True,
             "auto_approved": len(auto_approved),
             "skipped": len(skipped),
-            "total_pending": len(pending)
+            "total_pending": len(pending),
         }
 
     def stop_review(self, review_id: str, instance_id: str) -> Dict[str, Any]:
@@ -266,22 +252,19 @@ class ReviewProcessor:
         try:
             response = self.client.post(
                 f"identityGovernance/accessReviews/definitions/{review_id}/instances/{instance_id}/stop",
-                {}
+                {},
             )
 
             return {
                 "success": True,
                 "review_id": review_id,
                 "instance_id": instance_id,
-                "status": "Stopped"
+                "status": "Stopped",
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to stop review: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def apply_decisions(self, review_id: str, instance_id: str) -> Dict[str, Any]:
         """
@@ -299,28 +282,22 @@ class ReviewProcessor:
         try:
             response = self.client.post(
                 f"identityGovernance/accessReviews/definitions/{review_id}/instances/{instance_id}/applyDecisions",
-                {}
+                {},
             )
 
             return {
                 "success": True,
                 "review_id": review_id,
                 "instance_id": instance_id,
-                "status": "Decisions applied"
+                "status": "Decisions applied",
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to apply decisions: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def send_reminder(
-        self,
-        review_id: str,
-        instance_id: str,
-        message: Optional[str] = None
+        self, review_id: str, instance_id: str, message: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Send reminder to reviewers
@@ -342,28 +319,21 @@ class ReviewProcessor:
         try:
             response = self.client.post(
                 f"identityGovernance/accessReviews/definitions/{review_id}/instances/{instance_id}/sendReminder",
-                request_body
+                request_body,
             )
 
             return {
                 "success": True,
                 "review_id": review_id,
                 "instance_id": instance_id,
-                "reminder_sent": True
+                "reminder_sent": True,
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to send reminder: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
-    def get_decision_insights(
-        self,
-        review_id: str,
-        instance_id: str
-    ) -> Dict[str, Any]:
+    def get_decision_insights(self, review_id: str, instance_id: str) -> Dict[str, Any]:
         """
         Get insights about review decisions
 
@@ -382,7 +352,9 @@ class ReviewProcessor:
             total = len(decisions)
             approved = sum(1 for d in decisions if d.get("decision") == "Approve")
             denied = sum(1 for d in decisions if d.get("decision") == "Deny")
-            not_reviewed = sum(1 for d in decisions if d.get("decision") == "NotReviewed")
+            not_reviewed = sum(
+                1 for d in decisions if d.get("decision") == "NotReviewed"
+            )
 
             completion_rate = ((approved + denied) / total * 100) if total > 0 else 0
 
@@ -393,7 +365,7 @@ class ReviewProcessor:
                 "not_reviewed": not_reviewed,
                 "completion_rate": round(completion_rate, 2),
                 "approval_rate": round((approved / total * 100), 2) if total > 0 else 0,
-                "denial_rate": round((denied / total * 100), 2) if total > 0 else 0
+                "denial_rate": round((denied / total * 100), 2) if total > 0 else 0,
             }
 
         except GraphAPIError as e:
@@ -406,7 +378,7 @@ class ReviewProcessor:
         scope_type: str,
         scope_id: str,
         reviewers: List[Dict[str, str]],
-        recurrence_pattern: str = "quarterly"
+        recurrence_pattern: str = "quarterly",
     ) -> Dict[str, Any]:
         """
         Create a new recurring access review schedule
@@ -429,15 +401,19 @@ class ReviewProcessor:
             "monthly": "P1M",
             "quarterly": "P3M",
             "semiannually": "P6M",
-            "annually": "P1Y"
+            "annually": "P1Y",
         }
 
         request_body = {
             "displayName": display_name,
             "scope": {
                 "@odata.type": f"#microsoft.graph.accessReviewQuery{scope_type.capitalize()}Scope",
-                "query": f"/groups/{scope_id}/members" if scope_type == "group" else f"/{scope_type}s/{scope_id}",
-                "queryType": "MicrosoftGraph"
+                "query": (
+                    f"/groups/{scope_id}/members"
+                    if scope_type == "group"
+                    else f"/{scope_type}s/{scope_id}"
+                ),
+                "queryType": "MicrosoftGraph",
             },
             "reviewers": reviewers,
             "settings": {
@@ -450,33 +426,29 @@ class ReviewProcessor:
                 "recurrence": {
                     "pattern": {
                         "type": "absoluteMonthly",
-                        "interval": 3 if recurrence_pattern == "quarterly" else 1
+                        "interval": 3 if recurrence_pattern == "quarterly" else 1,
                     },
                     "range": {
                         "type": "noEnd",
-                        "startDate": datetime.utcnow().date().isoformat()
-                    }
+                        "startDate": datetime.utcnow().date().isoformat(),
+                    },
                 },
-                "autoApplyDecisionsEnabled": True
-            }
+                "autoApplyDecisionsEnabled": True,
+            },
         }
 
         try:
             response = self.client.post(
-                "identityGovernance/accessReviews/definitions",
-                request_body
+                "identityGovernance/accessReviews/definitions", request_body
             )
 
             return {
                 "success": True,
                 "review_id": response.get("id"),
                 "display_name": response.get("displayName"),
-                "created": True
+                "created": True,
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to create review schedule: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}

@@ -23,7 +23,7 @@ class PolicyScore:
         "block_legacy_auth": 20,
         "location_filtering": 15,
         "app_protection": 10,
-        "session_controls": 10
+        "session_controls": 10,
     }
 
     @classmethod
@@ -48,7 +48,10 @@ class PolicyScore:
             score += cls.WEIGHTS["mfa_required"]
 
         # Device compliance
-        if "compliantDevice" in built_in_controls or "domainJoinedDevice" in built_in_controls:
+        if (
+            "compliantDevice" in built_in_controls
+            or "domainJoinedDevice" in built_in_controls
+        ):
             score += cls.WEIGHTS["device_compliance"]
 
         # Block legacy authentication
@@ -65,7 +68,10 @@ class PolicyScore:
             score += cls.WEIGHTS["location_filtering"]
 
         # App protection policies
-        if "approvedApplication" in built_in_controls or "compliantApplication" in built_in_controls:
+        if (
+            "approvedApplication" in built_in_controls
+            or "compliantApplication" in built_in_controls
+        ):
             score += cls.WEIGHTS["app_protection"]
 
         # Session controls
@@ -117,7 +123,9 @@ class ConditionalAccessAnalyzer:
         """
         return self.client.get(f"identity/conditionalAccess/policies/{policy_id}")
 
-    def analyze_policy_coverage(self, policies: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+    def analyze_policy_coverage(
+        self, policies: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         """
         Analyze coverage of CA policies
 
@@ -132,7 +140,9 @@ class ConditionalAccessAnalyzer:
 
         enabled_policies = [p for p in policies if p.get("state") == "enabled"]
         disabled_policies = [p for p in policies if p.get("state") == "disabled"]
-        report_only_policies = [p for p in policies if p.get("state") == "enabledForReportingButNotEnforced"]
+        report_only_policies = [
+            p for p in policies if p.get("state") == "enabledForReportingButNotEnforced"
+        ]
 
         # Analyze what's protected
         protected_apps = set()
@@ -168,24 +178,26 @@ class ConditionalAccessAnalyzer:
                 "total_policies": len(policies),
                 "enabled": len(enabled_policies),
                 "disabled": len(disabled_policies),
-                "report_only": len(report_only_policies)
+                "report_only": len(report_only_policies),
             },
             "coverage": {
                 "protected_applications": len(protected_apps),
                 "protected_users": len(protected_users),
                 "all_apps_protected": "All" in protected_apps,
-                "all_users_protected": "All" in protected_users
+                "all_users_protected": "All" in protected_users,
             },
             "security_controls": {
                 "mfa_policies": len(requires_mfa),
                 "legacy_auth_blocks": len(blocks_legacy_auth),
                 "mfa_policy_names": requires_mfa,
-                "legacy_auth_policy_names": blocks_legacy_auth
+                "legacy_auth_policy_names": blocks_legacy_auth,
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
-    def detect_policy_conflicts(self, policies: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
+    def detect_policy_conflicts(
+        self, policies: Optional[List[Dict[str, Any]]] = None
+    ) -> List[Dict[str, Any]]:
         """
         Detect conflicting CA policies
 
@@ -207,7 +219,9 @@ class ConditionalAccessAnalyzer:
         for policy in enabled_policies:
             conditions = policy.get("conditions", {})
             users = frozenset(conditions.get("users", {}).get("includeUsers", []))
-            apps = frozenset(conditions.get("applications", {}).get("includeApplications", []))
+            apps = frozenset(
+                conditions.get("applications", {}).get("includeApplications", [])
+            )
 
             key = (users, apps)
             policy_groups[key].append(policy)
@@ -216,23 +230,30 @@ class ConditionalAccessAnalyzer:
         for key, group_policies in policy_groups.items():
             if len(group_policies) > 1:
                 for i, policy1 in enumerate(group_policies):
-                    for policy2 in group_policies[i + 1:]:
+                    for policy2 in group_policies[i + 1 :]:
                         grant1 = policy1.get("grantControls", {})
                         grant2 = policy2.get("grantControls", {})
 
                         # Check for block vs allow conflict
-                        if grant1.get("operator") == "AND" and grant2.get("operator") == "OR":
-                            conflicts.append({
-                                "type": "grant_control_conflict",
-                                "severity": "medium",
-                                "policy1": policy1["displayName"],
-                                "policy2": policy2["displayName"],
-                                "description": "Policies have different grant control operators (AND vs OR)"
-                            })
+                        if (
+                            grant1.get("operator") == "AND"
+                            and grant2.get("operator") == "OR"
+                        ):
+                            conflicts.append(
+                                {
+                                    "type": "grant_control_conflict",
+                                    "severity": "medium",
+                                    "policy1": policy1["displayName"],
+                                    "policy2": policy2["displayName"],
+                                    "description": "Policies have different grant control operators (AND vs OR)",
+                                }
+                            )
 
         return conflicts
 
-    def score_all_policies(self, policies: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+    def score_all_policies(
+        self, policies: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         """
         Score all CA policies for security strength
 
@@ -251,12 +272,14 @@ class ConditionalAccessAnalyzer:
         for policy in policies:
             if policy.get("state") == "enabled":
                 score = PolicyScore.calculate_policy_score(policy)
-                scored_policies.append({
-                    "id": policy["id"],
-                    "displayName": policy["displayName"],
-                    "score": score,
-                    "state": policy["state"]
-                })
+                scored_policies.append(
+                    {
+                        "id": policy["id"],
+                        "displayName": policy["displayName"],
+                        "score": score,
+                        "state": policy["state"],
+                    }
+                )
                 total_score += score
 
         scored_policies.sort(key=lambda x: x["score"], reverse=True)
@@ -265,23 +288,31 @@ class ConditionalAccessAnalyzer:
 
         recommendations = []
         if avg_score < 60:
-            recommendations.append("Overall CA security posture is weak. Consider implementing MFA and device compliance.")
+            recommendations.append(
+                "Overall CA security posture is weak. Consider implementing MFA and device compliance."
+            )
         if avg_score < 80:
-            recommendations.append("Good foundation, but consider adding location-based controls and app protection policies.")
+            recommendations.append(
+                "Good foundation, but consider adding location-based controls and app protection policies."
+            )
 
         weak_policies = [p for p in scored_policies if p["score"] < 50]
         if weak_policies:
-            recommendations.append(f"{len(weak_policies)} policies have weak security controls. Review: {', '.join([p['displayName'] for p in weak_policies[:3]])}")
+            recommendations.append(
+                f"{len(weak_policies)} policies have weak security controls. Review: {', '.join([p['displayName'] for p in weak_policies[:3]])}"
+            )
 
         return {
             "average_score": round(avg_score, 2),
             "total_policies_scored": len(scored_policies),
             "policies": scored_policies,
             "recommendations": recommendations,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
-    def generate_recommendations(self, policies: Optional[List[Dict[str, Any]]] = None) -> List[str]:
+    def generate_recommendations(
+        self, policies: Optional[List[Dict[str, Any]]] = None
+    ) -> List[str]:
         """
         Generate security recommendations based on CA policy analysis
 
@@ -314,20 +345,32 @@ class ConditionalAccessAnalyzer:
         )
 
         if not has_mfa:
-            recommendations.append("CRITICAL: No MFA policies detected. Implement MFA for all users or high-risk scenarios.")
+            recommendations.append(
+                "CRITICAL: No MFA policies detected. Implement MFA for all users or high-risk scenarios."
+            )
 
         if not has_legacy_auth_block:
-            recommendations.append("HIGH: Legacy authentication protocols are not blocked. Create policy to block legacy auth.")
+            recommendations.append(
+                "HIGH: Legacy authentication protocols are not blocked. Create policy to block legacy auth."
+            )
 
         if not has_device_compliance:
-            recommendations.append("MEDIUM: No device compliance checks detected. Consider requiring compliant devices.")
+            recommendations.append(
+                "MEDIUM: No device compliance checks detected. Consider requiring compliant devices."
+            )
 
         if len(enabled_policies) < 3:
-            recommendations.append("LOW: Only {len(enabled_policies)} policies enabled. Consider implementing more granular controls.")
+            recommendations.append(
+                "LOW: Only {len(enabled_policies)} policies enabled. Consider implementing more granular controls."
+            )
 
         # Check for report-only policies
-        report_only = [p for p in policies if p.get("state") == "enabledForReportingButNotEnforced"]
+        report_only = [
+            p for p in policies if p.get("state") == "enabledForReportingButNotEnforced"
+        ]
         if report_only:
-            recommendations.append(f"INFO: {len(report_only)} policies in report-only mode. Review for enforcement.")
+            recommendations.append(
+                f"INFO: {len(report_only)} policies in report-only mode. Review for enforcement."
+            )
 
         return recommendations

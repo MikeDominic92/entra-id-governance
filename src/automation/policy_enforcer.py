@@ -32,7 +32,7 @@ class PolicyEnforcer:
         include_groups: List[str] = None,
         exclude_users: List[str] = None,
         cloud_apps: List[str] = None,
-        state: str = "enabledForReportingButNotEnforced"
+        state: str = "enabledForReportingButNotEnforced",
     ) -> Dict[str, Any]:
         """
         Create a Conditional Access policy requiring MFA
@@ -57,23 +57,17 @@ class PolicyEnforcer:
                 "users": {
                     "includeUsers": include_users or ["All"],
                     "includeGroups": include_groups or [],
-                    "excludeUsers": exclude_users or []
+                    "excludeUsers": exclude_users or [],
                 },
-                "applications": {
-                    "includeApplications": cloud_apps or ["All"]
-                },
-                "clientAppTypes": ["all"]
+                "applications": {"includeApplications": cloud_apps or ["All"]},
+                "clientAppTypes": ["all"],
             },
-            "grantControls": {
-                "operator": "OR",
-                "builtInControls": ["mfa"]
-            }
+            "grantControls": {"operator": "OR", "builtInControls": ["mfa"]},
         }
 
         try:
             response = self.client.post(
-                "identity/conditionalAccess/policies",
-                request_body
+                "identity/conditionalAccess/policies", request_body
             )
 
             logger.info(f"MFA policy created successfully: {response.get('id')}")
@@ -81,21 +75,18 @@ class PolicyEnforcer:
                 "success": True,
                 "policy_id": response.get("id"),
                 "display_name": response.get("displayName"),
-                "state": response.get("state")
+                "state": response.get("state"),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to create MFA policy: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def create_block_legacy_auth_policy(
         self,
         display_name: str = "Block Legacy Authentication",
         exclude_users: List[str] = None,
-        state: str = "enabledForReportingButNotEnforced"
+        state: str = "enabledForReportingButNotEnforced",
     ) -> Dict[str, Any]:
         """
         Create policy to block legacy authentication protocols
@@ -114,43 +105,28 @@ class PolicyEnforcer:
             "displayName": display_name,
             "state": state,
             "conditions": {
-                "users": {
-                    "includeUsers": ["All"],
-                    "excludeUsers": exclude_users or []
-                },
-                "applications": {
-                    "includeApplications": ["All"]
-                },
-                "clientAppTypes": [
-                    "exchangeActiveSync",
-                    "other"
-                ]
+                "users": {"includeUsers": ["All"], "excludeUsers": exclude_users or []},
+                "applications": {"includeApplications": ["All"]},
+                "clientAppTypes": ["exchangeActiveSync", "other"],
             },
-            "grantControls": {
-                "operator": "OR",
-                "builtInControls": ["block"]
-            }
+            "grantControls": {"operator": "OR", "builtInControls": ["block"]},
         }
 
         try:
             response = self.client.post(
-                "identity/conditionalAccess/policies",
-                request_body
+                "identity/conditionalAccess/policies", request_body
             )
 
             logger.info(f"Legacy auth block policy created: {response.get('id')}")
             return {
                 "success": True,
                 "policy_id": response.get("id"),
-                "display_name": response.get("displayName")
+                "display_name": response.get("displayName"),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to create legacy auth block policy: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def create_compliant_device_policy(
         self,
@@ -159,7 +135,7 @@ class PolicyEnforcer:
         include_groups: List[str] = None,
         cloud_apps: List[str] = None,
         platforms: List[str] = None,
-        state: str = "enabledForReportingButNotEnforced"
+        state: str = "enabledForReportingButNotEnforced",
     ) -> Dict[str, Any]:
         """
         Create policy requiring compliant or domain-joined devices
@@ -180,19 +156,15 @@ class PolicyEnforcer:
         conditions = {
             "users": {
                 "includeUsers": include_users or ["All"],
-                "includeGroups": include_groups or []
+                "includeGroups": include_groups or [],
             },
-            "applications": {
-                "includeApplications": cloud_apps or ["All"]
-            },
-            "clientAppTypes": ["all"]
+            "applications": {"includeApplications": cloud_apps or ["All"]},
+            "clientAppTypes": ["all"],
         }
 
         # Add platform filter if specified
         if platforms:
-            conditions["platforms"] = {
-                "includePlatforms": platforms
-            }
+            conditions["platforms"] = {"includePlatforms": platforms}
 
         request_body = {
             "displayName": display_name,
@@ -200,38 +172,27 @@ class PolicyEnforcer:
             "conditions": conditions,
             "grantControls": {
                 "operator": "OR",
-                "builtInControls": [
-                    "compliantDevice",
-                    "domainJoinedDevice"
-                ]
-            }
+                "builtInControls": ["compliantDevice", "domainJoinedDevice"],
+            },
         }
 
         try:
             response = self.client.post(
-                "identity/conditionalAccess/policies",
-                request_body
+                "identity/conditionalAccess/policies", request_body
             )
 
             logger.info(f"Compliant device policy created: {response.get('id')}")
             return {
                 "success": True,
                 "policy_id": response.get("id"),
-                "display_name": response.get("displayName")
+                "display_name": response.get("displayName"),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to create compliant device policy: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
-    def update_policy_state(
-        self,
-        policy_id: str,
-        state: str
-    ) -> Dict[str, Any]:
+    def update_policy_state(self, policy_id: str, state: str) -> Dict[str, Any]:
         """
         Update policy state (enable, disable, report-only)
 
@@ -244,28 +205,18 @@ class PolicyEnforcer:
         """
         logger.info(f"Updating policy {policy_id} state to {state}")
 
-        request_body = {
-            "state": state
-        }
+        request_body = {"state": state}
 
         try:
             response = self.client.patch(
-                f"identity/conditionalAccess/policies/{policy_id}",
-                request_body
+                f"identity/conditionalAccess/policies/{policy_id}", request_body
             )
 
-            return {
-                "success": True,
-                "policy_id": policy_id,
-                "new_state": state
-            }
+            return {"success": True, "policy_id": policy_id, "new_state": state}
 
         except GraphAPIError as e:
             logger.error(f"Failed to update policy state: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def enable_policy(self, policy_id: str) -> Dict[str, Any]:
         """Enable a Conditional Access policy"""
@@ -294,24 +245,14 @@ class PolicyEnforcer:
         try:
             self.client.delete(f"identity/conditionalAccess/policies/{policy_id}")
 
-            return {
-                "success": True,
-                "policy_id": policy_id,
-                "deleted": True
-            }
+            return {"success": True, "policy_id": policy_id, "deleted": True}
 
         except GraphAPIError as e:
             logger.error(f"Failed to delete policy: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def clone_policy(
-        self,
-        source_policy_id: str,
-        new_display_name: str,
-        state: str = "disabled"
+        self, source_policy_id: str, new_display_name: str, state: str = "disabled"
     ) -> Dict[str, Any]:
         """
         Clone an existing policy
@@ -338,13 +279,12 @@ class PolicyEnforcer:
                 "state": state,
                 "conditions": source.get("conditions"),
                 "grantControls": source.get("grantControls"),
-                "sessionControls": source.get("sessionControls")
+                "sessionControls": source.get("sessionControls"),
             }
 
             # Create new policy
             response = self.client.post(
-                "identity/conditionalAccess/policies",
-                clone_body
+                "identity/conditionalAccess/policies", clone_body
             )
 
             logger.info(f"Policy cloned successfully: {response.get('id')}")
@@ -352,15 +292,12 @@ class PolicyEnforcer:
                 "success": True,
                 "policy_id": response.get("id"),
                 "display_name": response.get("displayName"),
-                "source_policy_id": source_policy_id
+                "source_policy_id": source_policy_id,
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to clone policy: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def bulk_enable_policies(self, policy_ids: List[str]) -> Dict[str, Any]:
         """
@@ -372,11 +309,7 @@ class PolicyEnforcer:
         Returns:
             Bulk operation results
         """
-        results = {
-            "successful": [],
-            "failed": [],
-            "total": len(policy_ids)
-        }
+        results = {"successful": [], "failed": [], "total": len(policy_ids)}
 
         for policy_id in policy_ids:
             result = self.enable_policy(policy_id)
@@ -384,10 +317,9 @@ class PolicyEnforcer:
             if result.get("success"):
                 results["successful"].append(policy_id)
             else:
-                results["failed"].append({
-                    "policy_id": policy_id,
-                    "error": result.get("error")
-                })
+                results["failed"].append(
+                    {"policy_id": policy_id, "error": result.get("error")}
+                )
 
         logger.info(
             f"Bulk enable complete: {len(results['successful'])} succeeded, "
@@ -400,7 +332,7 @@ class PolicyEnforcer:
         self,
         policy_id: str,
         exclude_users: List[str] = None,
-        exclude_groups: List[str] = None
+        exclude_groups: List[str] = None,
     ) -> Dict[str, Any]:
         """
         Add exclusions to an existing policy
@@ -417,9 +349,7 @@ class PolicyEnforcer:
 
         try:
             # Get current policy
-            policy = self.client.get(
-                f"identity/conditionalAccess/policies/{policy_id}"
-            )
+            policy = self.client.get(f"identity/conditionalAccess/policies/{policy_id}")
 
             # Update exclusions
             conditions = policy.get("conditions", {})
@@ -441,19 +371,11 @@ class PolicyEnforcer:
             # Update policy
             update_body = {"conditions": conditions}
             response = self.client.patch(
-                f"identity/conditionalAccess/policies/{policy_id}",
-                update_body
+                f"identity/conditionalAccess/policies/{policy_id}", update_body
             )
 
-            return {
-                "success": True,
-                "policy_id": policy_id,
-                "exclusions_added": True
-            }
+            return {"success": True, "policy_id": policy_id, "exclusions_added": True}
 
         except GraphAPIError as e:
             logger.error(f"Failed to add exclusions: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}

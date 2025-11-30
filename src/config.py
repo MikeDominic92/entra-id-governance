@@ -18,8 +18,13 @@ class GraphAPIConfig(BaseModel):
     tenant_id: str = Field(..., description="Azure AD Tenant ID")
     client_id: str = Field(..., description="Azure App Registration Client ID")
     client_secret: str = Field(..., description="Azure App Registration Client Secret")
-    authority: str = Field(default="https://login.microsoftonline.com", description="Azure AD authority URL")
-    scopes: list[str] = Field(default=["https://graph.microsoft.com/.default"], description="Graph API scopes")
+    authority: str = Field(
+        default="https://login.microsoftonline.com",
+        description="Azure AD authority URL",
+    )
+    scopes: list[str] = Field(
+        default=["https://graph.microsoft.com/.default"], description="Graph API scopes"
+    )
 
     @validator("tenant_id", "client_id", "client_secret")
     def validate_not_empty(cls, v):
@@ -43,10 +48,14 @@ class AppConfig(BaseModel):
 
     # Logging
     log_level: str = Field(default="INFO", description="Logging level")
-    log_file: Optional[str] = Field(default="entra_governance.log", description="Log file path")
+    log_file: Optional[str] = Field(
+        default="entra_governance.log", description="Log file path"
+    )
 
     # Cache settings
-    token_cache_file: str = Field(default=".token_cache.json", description="Token cache file")
+    token_cache_file: str = Field(
+        default=".token_cache.json", description="Token cache file"
+    )
     cache_ttl: int = Field(default=3600, description="Cache TTL in seconds")
 
     # Rate limiting
@@ -55,7 +64,9 @@ class AppConfig(BaseModel):
     batch_size: int = Field(default=20, description="Batch request size")
 
     # Reporting
-    report_output_dir: str = Field(default="reports", description="Output directory for reports")
+    report_output_dir: str = Field(
+        default="reports", description="Output directory for reports"
+    )
 
     @validator("log_level")
     def validate_log_level(cls, v):
@@ -79,7 +90,7 @@ class Settings:
             self._graph_config = GraphAPIConfig(
                 tenant_id=os.getenv("AZURE_TENANT_ID", ""),
                 client_id=os.getenv("AZURE_CLIENT_ID", ""),
-                client_secret=os.getenv("AZURE_CLIENT_SECRET", "")
+                client_secret=os.getenv("AZURE_CLIENT_SECRET", ""),
             )
         return self._graph_config
 
@@ -92,7 +103,7 @@ class Settings:
                 api_port=int(os.getenv("API_PORT", "8000")),
                 api_debug=os.getenv("API_DEBUG", "false").lower() == "true",
                 log_level=os.getenv("LOG_LEVEL", "INFO"),
-                log_file=os.getenv("LOG_FILE", "entra_governance.log")
+                log_file=os.getenv("LOG_FILE", "entra_governance.log"),
             )
         return self._app_config
 

@@ -14,6 +14,7 @@ router = APIRouter()
 
 class CreateMFAPolicyRequest(BaseModel):
     """Request model for creating MFA policy"""
+
     display_name: str
     include_users: List[str] = ["All"]
     include_groups: List[str] = []
@@ -24,6 +25,7 @@ class CreateMFAPolicyRequest(BaseModel):
 
 class UpdatePolicyStateRequest(BaseModel):
     """Request model for updating policy state"""
+
     state: str  # enabled, disabled, enabledForReportingButNotEnforced
 
 
@@ -104,7 +106,7 @@ async def create_mfa_policy(request: CreateMFAPolicyRequest):
             include_groups=request.include_groups,
             exclude_users=request.exclude_users,
             cloud_apps=request.cloud_apps,
-            state=request.state
+            state=request.state,
         )
         return result
     except Exception as e:

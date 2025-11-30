@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class GraphAPIError(Exception):
     """Custom exception for Graph API errors"""
+
     pass
 
 
@@ -49,7 +50,7 @@ class GraphClient:
 
         if cache_file.exists():
             try:
-                with open(cache_file, 'r') as f:
+                with open(cache_file, "r") as f:
                     cache.deserialize(f.read())
                 logger.info("Token cache loaded successfully")
             except Exception as e:
@@ -62,7 +63,7 @@ class GraphClient:
         if self.token_cache.has_state_changed:
             try:
                 cache_file = Path(self.app_config.token_cache_file)
-                with open(cache_file, 'w') as f:
+                with open(cache_file, "w") as f:
                     f.write(self.token_cache.serialize())
                 logger.debug("Token cache saved")
             except Exception as e:
@@ -74,7 +75,7 @@ class GraphClient:
             client_id=self.config.client_id,
             client_credential=self.config.client_secret,
             authority=self.config.authority_url,
-            token_cache=self.token_cache
+            token_cache=self.token_cache,
         )
 
     def _acquire_token(self) -> str:
@@ -93,16 +94,13 @@ class GraphClient:
 
         if accounts:
             result = self.msal_app.acquire_token_silent(
-                scopes=self.config.scopes,
-                account=accounts[0]
+                scopes=self.config.scopes, account=accounts[0]
             )
 
         # If no cached token, acquire new one
         if not result:
             logger.info("Acquiring new access token")
-            result = self.msal_app.acquire_token_for_client(
-                scopes=self.config.scopes
-            )
+            result = self.msal_app.acquire_token_for_client(scopes=self.config.scopes)
 
         self._save_token_cache()
 
@@ -127,7 +125,7 @@ class GraphClient:
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
         json_data: Optional[Dict[str, Any]] = None,
-        retry_count: int = 0
+        retry_count: int = 0,
     ) -> Dict[str, Any]:
         """
         Make HTTP request to Graph API with retry logic
@@ -148,7 +146,7 @@ class GraphClient:
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         headers = {
             "Authorization": f"Bearer {self.access_token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
         try:
@@ -158,22 +156,28 @@ class GraphClient:
                     url=url,
                     headers=headers,
                     params=params,
-                    json=json_data
+                    json=json_data,
                 )
 
                 # Handle rate limiting (429)
                 if response.status_code == 429:
-                    retry_after = int(response.headers.get("Retry-After", self.app_config.retry_delay))
+                    retry_after = int(
+                        response.headers.get("Retry-After", self.app_config.retry_delay)
+                    )
                     logger.warning(f"Rate limited. Waiting {retry_after} seconds...")
                     time.sleep(retry_after)
-                    return self._make_request(method, endpoint, params, json_data, retry_count)
+                    return self._make_request(
+                        method, endpoint, params, json_data, retry_count
+                    )
 
                 # Handle token expiration (401)
                 if response.status_code == 401:
                     logger.info("Token expired, acquiring new token")
                     self._access_token = None
                     if retry_count < self.app_config.max_retries:
-                        return self._make_request(method, endpoint, params, json_data, retry_count + 1)
+                        return self._make_request(
+                            method, endpoint, params, json_data, retry_count + 1
+                        )
 
                 # Raise for other HTTP errors
                 response.raise_for_status()
@@ -182,10 +186,14 @@ class GraphClient:
 
         except httpx.HTTPStatusError as e:
             if retry_count < self.app_config.max_retries:
-                wait_time = self.app_config.retry_delay * (2 ** retry_count)
-                logger.warning(f"Request failed, retrying in {wait_time}s... (attempt {retry_count + 1})")
+                wait_time = self.app_config.retry_delay * (2**retry_count)
+                logger.warning(
+                    f"Request failed, retrying in {wait_time}s... (attempt {retry_count + 1})"
+                )
                 time.sleep(wait_time)
-                return self._make_request(method, endpoint, params, json_data, retry_count + 1)
+                return self._make_request(
+                    method, endpoint, params, json_data, retry_count + 1
+                )
             else:
                 error_detail = e.response.text
                 raise GraphAPIError(f"HTTP {e.response.status_code}: {error_detail}")
@@ -193,7 +201,9 @@ class GraphClient:
         except Exception as e:
             raise GraphAPIError(f"Request failed: {str(e)}")
 
-    def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def get(
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """Make GET request"""
         return self._make_request("GET", endpoint, params=params)
 
@@ -209,7 +219,9 @@ class GraphClient:
         """Make DELETE request"""
         return self._make_request("DELETE", endpoint)
 
-    def get_all_pages(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    def get_all_pages(
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
         """
         Get all pages of results using pagination
 
@@ -258,10 +270,12 @@ class GraphClient:
             List of response objects
         """
         if len(requests) > 20:
-            logger.warning(f"Batch size {len(requests)} exceeds limit. Splitting into chunks.")
+            logger.warning(
+                f"Batch size {len(requests)} exceeds limit. Splitting into chunks."
+            )
             results = []
             for i in range(0, len(requests), 20):
-                chunk = requests[i:i + 20]
+                chunk = requests[i : i + 20]
                 results.extend(self.batch_request(chunk))
             return results
 

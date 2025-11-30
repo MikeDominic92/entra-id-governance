@@ -32,7 +32,7 @@ class PIMActivator:
         role_definition_id: str,
         justification: str,
         duration_hours: int = 8,
-        ticket_number: Optional[str] = None
+        ticket_number: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Activate a PIM eligible role
@@ -50,7 +50,9 @@ class PIMActivator:
         Raises:
             GraphAPIError: If activation fails
         """
-        logger.info(f"Activating role {role_definition_id} for principal {principal_id}")
+        logger.info(
+            f"Activating role {role_definition_id} for principal {principal_id}"
+        )
 
         # Calculate expiration
         start_time = datetime.utcnow()
@@ -66,22 +68,21 @@ class PIMActivator:
                 "startDateTime": start_time.isoformat() + "Z",
                 "expiration": {
                     "type": "afterDuration",
-                    "duration": f"PT{duration_hours}H"
-                }
-            }
+                    "duration": f"PT{duration_hours}H",
+                },
+            },
         }
 
         # Add ticket number if provided
         if ticket_number:
             request_body["ticketInfo"] = {
                 "ticketNumber": ticket_number,
-                "ticketSystem": "ServiceNow"  # Customize as needed
+                "ticketSystem": "ServiceNow",  # Customize as needed
             }
 
         try:
             response = self.client.post(
-                "roleManagement/directory/roleAssignmentScheduleRequests",
-                request_body
+                "roleManagement/directory/roleAssignmentScheduleRequests", request_body
             )
 
             logger.info(f"Role activation successful: {response.get('id')}")
@@ -91,21 +92,18 @@ class PIMActivator:
                 "status": response.get("status"),
                 "created_datetime": response.get("createdDateTime"),
                 "activation_duration_hours": duration_hours,
-                "expires_at": end_time.isoformat()
+                "expires_at": end_time.isoformat(),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to activate role: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def deactivate_role(
         self,
         principal_id: str,
         role_definition_id: str,
-        justification: str = "Manual deactivation"
+        justification: str = "Manual deactivation",
     ) -> Dict[str, Any]:
         """
         Deactivate an active PIM role
@@ -118,41 +116,39 @@ class PIMActivator:
         Returns:
             Deactivation response
         """
-        logger.info(f"Deactivating role {role_definition_id} for principal {principal_id}")
+        logger.info(
+            f"Deactivating role {role_definition_id} for principal {principal_id}"
+        )
 
         request_body = {
             "action": "selfDeactivate",
             "principalId": principal_id,
             "roleDefinitionId": role_definition_id,
             "directoryScopeId": "/",
-            "justification": justification
+            "justification": justification,
         }
 
         try:
             response = self.client.post(
-                "roleManagement/directory/roleAssignmentScheduleRequests",
-                request_body
+                "roleManagement/directory/roleAssignmentScheduleRequests", request_body
             )
 
             logger.info(f"Role deactivation successful: {response.get('id')}")
             return {
                 "success": True,
                 "request_id": response.get("id"),
-                "status": response.get("status")
+                "status": response.get("status"),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to deactivate role: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def extend_activation(
         self,
         assignment_id: str,
         additional_hours: int = 4,
-        justification: str = "Extension required"
+        justification: str = "Extension required",
     ) -> Dict[str, Any]:
         """
         Extend an active role assignment
@@ -183,28 +179,24 @@ class PIMActivator:
                 "scheduleInfo": {
                     "expiration": {
                         "type": "afterDuration",
-                        "duration": f"PT{additional_hours}H"
+                        "duration": f"PT{additional_hours}H",
                     }
-                }
+                },
             }
 
             response = self.client.post(
-                "roleManagement/directory/roleAssignmentScheduleRequests",
-                request_body
+                "roleManagement/directory/roleAssignmentScheduleRequests", request_body
             )
 
             return {
                 "success": True,
                 "request_id": response.get("id"),
-                "extended_hours": additional_hours
+                "extended_hours": additional_hours,
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to extend activation: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def get_my_eligible_roles(self, principal_id: str) -> list[Dict[str, Any]]:
         """
@@ -220,10 +212,12 @@ class PIMActivator:
             filter_query = f"principalId eq '{principal_id}'"
             eligible_roles = self.client.get_all_pages(
                 "roleManagement/directory/roleEligibilityScheduleInstances",
-                params={"$filter": filter_query}
+                params={"$filter": filter_query},
             )
 
-            logger.info(f"Found {len(eligible_roles)} eligible roles for {principal_id}")
+            logger.info(
+                f"Found {len(eligible_roles)} eligible roles for {principal_id}"
+            )
             return eligible_roles
 
         except GraphAPIError as e:
@@ -244,7 +238,7 @@ class PIMActivator:
             filter_query = f"principalId eq '{principal_id}'"
             active_roles = self.client.get_all_pages(
                 "roleManagement/directory/roleAssignmentScheduleInstances",
-                params={"$filter": filter_query}
+                params={"$filter": filter_query},
             )
 
             logger.info(f"Found {len(active_roles)} active roles for {principal_id}")
@@ -275,20 +269,14 @@ class PIMActivator:
                 "action": request.get("action"),
                 "created_datetime": request.get("createdDateTime"),
                 "completed_datetime": request.get("completedDateTime"),
-                "approval_required": request.get("isValidationOnly", False)
+                "approval_required": request.get("isValidationOnly", False),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to check activation status: {e}")
-            return {
-                "request_id": request_id,
-                "error": str(e)
-            }
+            return {"request_id": request_id, "error": str(e)}
 
-    def bulk_activate_roles(
-        self,
-        activations: list[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def bulk_activate_roles(self, activations: list[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Activate multiple roles in batch
 
@@ -298,11 +286,7 @@ class PIMActivator:
         Returns:
             Batch activation results
         """
-        results = {
-            "successful": [],
-            "failed": [],
-            "total": len(activations)
-        }
+        results = {"successful": [], "failed": [], "total": len(activations)}
 
         for activation in activations:
             result = self.activate_role(
@@ -310,16 +294,15 @@ class PIMActivator:
                 role_definition_id=activation["role_definition_id"],
                 justification=activation.get("justification", "Bulk activation"),
                 duration_hours=activation.get("duration_hours", 8),
-                ticket_number=activation.get("ticket_number")
+                ticket_number=activation.get("ticket_number"),
             )
 
             if result.get("success"):
                 results["successful"].append(result)
             else:
-                results["failed"].append({
-                    "activation": activation,
-                    "error": result.get("error")
-                })
+                results["failed"].append(
+                    {"activation": activation, "error": result.get("error")}
+                )
 
         logger.info(
             f"Bulk activation complete: {len(results['successful'])} succeeded, "
@@ -334,7 +317,7 @@ class PIMActivator:
         role_definition_id: str,
         justification: str,
         start_datetime: datetime,
-        duration_hours: int = 8
+        duration_hours: int = 8,
     ) -> Dict[str, Any]:
         """
         Schedule a future role activation
@@ -363,27 +346,23 @@ class PIMActivator:
                 "startDateTime": start_datetime.isoformat() + "Z",
                 "expiration": {
                     "type": "afterDateTime",
-                    "endDateTime": end_time.isoformat() + "Z"
-                }
-            }
+                    "endDateTime": end_time.isoformat() + "Z",
+                },
+            },
         }
 
         try:
             response = self.client.post(
-                "roleManagement/directory/roleAssignmentScheduleRequests",
-                request_body
+                "roleManagement/directory/roleAssignmentScheduleRequests", request_body
             )
 
             return {
                 "success": True,
                 "request_id": response.get("id"),
                 "scheduled_for": start_datetime.isoformat(),
-                "expires_at": end_time.isoformat()
+                "expires_at": end_time.isoformat(),
             }
 
         except GraphAPIError as e:
             logger.error(f"Failed to schedule activation: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}

@@ -97,8 +97,7 @@ class EntitlementAnalyzer:
 
             if package_id:
                 assignments = self.client.get_all_pages(
-                    endpoint,
-                    params={"$filter": f"accessPackage/id eq '{package_id}'"}
+                    endpoint, params={"$filter": f"accessPackage/id eq '{package_id}'"}
                 )
             else:
                 assignments = self.client.get_all_pages(endpoint)
@@ -138,38 +137,44 @@ class EntitlementAnalyzer:
 
             # Analyze policies
             has_approval = any(
-                policy.get("requestApprovalSettings", {}).get("isApprovalRequired", False)
+                policy.get("requestApprovalSettings", {}).get(
+                    "isApprovalRequired", False
+                )
                 for policy in policies
             )
 
             has_expiration = any(
-                policy.get("requestorSettings", {}).get("expirationSettings", {}).get("expirationDuration")
+                policy.get("requestorSettings", {})
+                .get("expirationSettings", {})
+                .get("expirationDuration")
                 for policy in policies
             )
 
-            package_details.append({
-                "id": package_id,
-                "displayName": package.get("displayName"),
-                "catalog": catalog_map.get(catalog_id, "Unknown"),
-                "is_hidden": package.get("isHidden", False),
-                "state": package.get("state"),
-                "policy_count": len(policies),
-                "assignment_count": assignment_count,
-                "requires_approval": has_approval,
-                "has_expiration": has_expiration
-            })
+            package_details.append(
+                {
+                    "id": package_id,
+                    "displayName": package.get("displayName"),
+                    "catalog": catalog_map.get(catalog_id, "Unknown"),
+                    "is_hidden": package.get("isHidden", False),
+                    "state": package.get("state"),
+                    "policy_count": len(policies),
+                    "assignment_count": assignment_count,
+                    "requires_approval": has_approval,
+                    "has_expiration": has_expiration,
+                }
+            )
 
         return {
             "summary": {
                 "total_packages": len(packages),
                 "total_catalogs": len(catalogs),
                 "total_assignments": total_assignments,
-                "average_assignments_per_package": round(
-                    total_assignments / len(packages), 2
-                ) if packages else 0
+                "average_assignments_per_package": (
+                    round(total_assignments / len(packages), 2) if packages else 0
+                ),
             },
             "packages": package_details,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def detect_overprivileged_packages(self) -> List[Dict[str, Any]]:
@@ -188,13 +193,17 @@ class EntitlementAnalyzer:
 
             # Check for packages without approval requirements
             requires_approval = any(
-                policy.get("requestApprovalSettings", {}).get("isApprovalRequired", False)
+                policy.get("requestApprovalSettings", {}).get(
+                    "isApprovalRequired", False
+                )
                 for policy in policies
             )
 
             # Check for packages without expiration
             has_expiration = any(
-                policy.get("requestorSettings", {}).get("expirationSettings", {}).get("expirationDuration")
+                policy.get("requestorSettings", {})
+                .get("expirationSettings", {})
+                .get("expirationDuration")
                 for policy in policies
             )
 
@@ -203,18 +212,26 @@ class EntitlementAnalyzer:
 
             # Flag packages with high usage but no governance controls
             if len(assignments) > 10 and (not requires_approval or not has_expiration):
-                overprivileged.append({
-                    "package_id": package_id,
-                    "displayName": package.get("displayName"),
-                    "assignment_count": len(assignments),
-                    "requires_approval": requires_approval,
-                    "has_expiration": has_expiration,
-                    "risk_level": "HIGH" if not requires_approval and not has_expiration else "MEDIUM",
-                    "recommendation": "Add approval workflow and expiration policy for high-usage packages"
-                })
+                overprivileged.append(
+                    {
+                        "package_id": package_id,
+                        "displayName": package.get("displayName"),
+                        "assignment_count": len(assignments),
+                        "requires_approval": requires_approval,
+                        "has_expiration": has_expiration,
+                        "risk_level": (
+                            "HIGH"
+                            if not requires_approval and not has_expiration
+                            else "MEDIUM"
+                        ),
+                        "recommendation": "Add approval workflow and expiration policy for high-usage packages",
+                    }
+                )
 
         overprivileged.sort(key=lambda x: x["assignment_count"], reverse=True)
-        logger.info(f"Detected {len(overprivileged)} potentially overprivileged packages")
+        logger.info(
+            f"Detected {len(overprivileged)} potentially overprivileged packages"
+        )
 
         return overprivileged
 
@@ -240,15 +257,17 @@ class EntitlementAnalyzer:
             catalog_id = catalog["id"]
             package_count = packages_per_catalog.get(catalog_id, 0)
 
-            catalog_details.append({
-                "id": catalog_id,
-                "displayName": catalog.get("displayName"),
-                "description": catalog.get("description"),
-                "catalogType": catalog.get("catalogType"),
-                "state": catalog.get("state"),
-                "isExternallyVisible": catalog.get("isExternallyVisible", False),
-                "package_count": package_count
-            })
+            catalog_details.append(
+                {
+                    "id": catalog_id,
+                    "displayName": catalog.get("displayName"),
+                    "description": catalog.get("description"),
+                    "catalogType": catalog.get("catalogType"),
+                    "state": catalog.get("state"),
+                    "isExternallyVisible": catalog.get("isExternallyVisible", False),
+                    "package_count": package_count,
+                }
+            )
 
         # Identify empty catalogs
         empty_catalogs = [c for c in catalog_details if c["package_count"] == 0]
@@ -257,17 +276,23 @@ class EntitlementAnalyzer:
             "summary": {
                 "total_catalogs": len(catalogs),
                 "empty_catalogs": len(empty_catalogs),
-                "average_packages_per_catalog": round(
-                    sum(packages_per_catalog.values()) / len(catalogs), 2
-                ) if catalogs else 0
+                "average_packages_per_catalog": (
+                    round(sum(packages_per_catalog.values()) / len(catalogs), 2)
+                    if catalogs
+                    else 0
+                ),
             },
             "catalogs": catalog_details,
             "recommendations": [
-                f"Remove {len(empty_catalogs)} empty catalogs" if empty_catalogs else "Catalog organization is good",
+                (
+                    f"Remove {len(empty_catalogs)} empty catalogs"
+                    if empty_catalogs
+                    else "Catalog organization is good"
+                ),
                 "Consider consolidating catalogs with similar purposes",
-                "Ensure catalog names clearly indicate their purpose"
+                "Ensure catalog names clearly indicate their purpose",
             ],
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def get_expiring_assignments(self, days: int = 30) -> List[Dict[str, Any]]:
@@ -291,19 +316,23 @@ class EntitlementAnalyzer:
 
             if end_date_str:
                 try:
-                    end_date = datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
+                    end_date = datetime.fromisoformat(
+                        end_date_str.replace("Z", "+00:00")
+                    )
                     end_date_naive = end_date.replace(tzinfo=None)
                     days_until_expiration = (end_date_naive - current_time).days
 
                     if 0 <= days_until_expiration <= days:
-                        expiring.append({
-                            "assignment_id": assignment.get("id"),
-                            "target_id": assignment.get("target", {}).get("id"),
-                            "access_package_id": assignment.get("accessPackageId"),
-                            "expiration_date": end_date_str,
-                            "days_until_expiration": days_until_expiration,
-                            "state": assignment.get("state")
-                        })
+                        expiring.append(
+                            {
+                                "assignment_id": assignment.get("id"),
+                                "target_id": assignment.get("target", {}).get("id"),
+                                "access_package_id": assignment.get("accessPackageId"),
+                                "expiration_date": end_date_str,
+                                "days_until_expiration": days_until_expiration,
+                                "state": assignment.get("state"),
+                            }
+                        )
                 except Exception as e:
                     logger.warning(f"Error parsing expiration date: {e}")
 
@@ -346,11 +375,13 @@ class EntitlementAnalyzer:
                 "Notify users to renew if needed."
             )
 
-        recommendations.extend([
-            "INFO: Regularly review access package assignments for compliance",
-            "INFO: Use connected organizations for external user management",
-            "INFO: Enable access reviews for long-term assignments"
-        ])
+        recommendations.extend(
+            [
+                "INFO: Regularly review access package assignments for compliance",
+                "INFO: Use connected organizations for external user management",
+                "INFO: Enable access reviews for long-term assignments",
+            ]
+        )
 
         return {
             "summary": {
@@ -358,12 +389,12 @@ class EntitlementAnalyzer:
                 "total_catalogs": catalog_analysis["summary"]["total_catalogs"],
                 "total_assignments": package_analysis["summary"]["total_assignments"],
                 "overprivileged_packages": len(overprivileged),
-                "expiring_assignments": len(expiring)
+                "expiring_assignments": len(expiring),
             },
             "package_analysis": package_analysis,
             "catalog_analysis": catalog_analysis,
             "overprivileged_packages": overprivileged[:10],
             "expiring_assignments": expiring[:10],
             "recommendations": recommendations,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }

@@ -14,7 +14,7 @@ from .routes import policies, pim, reports
 # Configure logging
 logging.basicConfig(
     level=getattr(logging, settings.app.log_level),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ app = FastAPI(
     description="REST API for Microsoft Entra ID Governance automation and analysis",
     version="0.1.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # Configure CORS
@@ -38,8 +38,12 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(policies.router, prefix="/api/v1/policies", tags=["Conditional Access"])
-app.include_router(pim.router, prefix="/api/v1/pim", tags=["Privileged Identity Management"])
+app.include_router(
+    policies.router, prefix="/api/v1/policies", tags=["Conditional Access"]
+)
+app.include_router(
+    pim.router, prefix="/api/v1/pim", tags=["Privileged Identity Management"]
+)
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"])
 
 
@@ -56,8 +60,8 @@ async def root():
             "health": "/health",
             "conditional_access": "/api/v1/policies",
             "pim": "/api/v1/pim",
-            "reports": "/api/v1/reports"
-        }
+            "reports": "/api/v1/reports",
+        },
     }
 
 
@@ -71,7 +75,7 @@ async def health_check():
         return {
             "status": "healthy" if is_valid else "unhealthy",
             "configuration": "valid" if is_valid else "invalid",
-            "timestamp": "2025-11-30T00:00:00Z"
+            "timestamp": "2025-11-30T00:00:00Z",
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
@@ -83,8 +87,7 @@ async def global_exception_handler(request, exc):
     """Global exception handler"""
     logger.error(f"Unhandled exception: {exc}")
     return JSONResponse(
-        status_code=500,
-        content={"error": "Internal server error", "detail": str(exc)}
+        status_code=500, content={"error": "Internal server error", "detail": str(exc)}
     )
 
 
@@ -95,5 +98,5 @@ if __name__ == "__main__":
         app,
         host=settings.app.api_host,
         port=settings.app.api_port,
-        log_level=settings.app.log_level.lower()
+        log_level=settings.app.log_level.lower(),
     )

@@ -64,7 +64,9 @@ class AccessReviewAnalyzer:
             logger.error(f"Failed to fetch review instances: {e}")
             return []
 
-    def get_review_decisions(self, review_id: str, instance_id: str) -> List[Dict[str, Any]]:
+    def get_review_decisions(
+        self, review_id: str, instance_id: str
+    ) -> List[Dict[str, Any]]:
         """
         Get decisions for a specific review instance
 
@@ -101,24 +103,27 @@ class AccessReviewAnalyzer:
                 for instance in instances:
                     if instance.get("status") == "InProgress":
                         # Get decisions to check completion
-                        decisions = self.get_review_decisions(review["id"], instance["id"])
+                        decisions = self.get_review_decisions(
+                            review["id"], instance["id"]
+                        )
 
                         pending_decisions = sum(
-                            1 for d in decisions
-                            if d.get("decision") == "NotReviewed"
+                            1 for d in decisions if d.get("decision") == "NotReviewed"
                         )
 
                         if pending_decisions > 0:
-                            pending.append({
-                                "review_id": review["id"],
-                                "review_name": review.get("displayName"),
-                                "instance_id": instance["id"],
-                                "status": instance.get("status"),
-                                "start_date": instance.get("startDateTime"),
-                                "end_date": instance.get("endDateTime"),
-                                "pending_decisions": pending_decisions,
-                                "total_decisions": len(decisions)
-                            })
+                            pending.append(
+                                {
+                                    "review_id": review["id"],
+                                    "review_name": review.get("displayName"),
+                                    "instance_id": instance["id"],
+                                    "status": instance.get("status"),
+                                    "start_date": instance.get("startDateTime"),
+                                    "end_date": instance.get("endDateTime"),
+                                    "pending_decisions": pending_decisions,
+                                    "total_decisions": len(decisions),
+                                }
+                            )
 
         logger.info(f"Found {len(pending)} pending review instances")
         return pending
@@ -157,22 +162,29 @@ class AccessReviewAnalyzer:
                 decisions = self.get_review_decisions(review["id"], instance["id"])
                 total_decisions = len(decisions)
                 completed_decisions = sum(
-                    1 for d in decisions
-                    if d.get("decision") != "NotReviewed"
+                    1 for d in decisions if d.get("decision") != "NotReviewed"
                 )
 
-                completion_pct = (completed_decisions / total_decisions * 100) if total_decisions > 0 else 0
+                completion_pct = (
+                    (completed_decisions / total_decisions * 100)
+                    if total_decisions > 0
+                    else 0
+                )
 
-                review_details.append({
-                    "review_name": review.get("displayName"),
-                    "instance_id": instance["id"],
-                    "status": status,
-                    "completion_percentage": round(completion_pct, 2),
-                    "completed_decisions": completed_decisions,
-                    "total_decisions": total_decisions
-                })
+                review_details.append(
+                    {
+                        "review_name": review.get("displayName"),
+                        "instance_id": instance["id"],
+                        "status": status,
+                        "completion_percentage": round(completion_pct, 2),
+                        "completed_decisions": completed_decisions,
+                        "total_decisions": total_decisions,
+                    }
+                )
 
-        overall_completion = (completed_reviews / total_reviews * 100) if total_reviews > 0 else 0
+        overall_completion = (
+            (completed_reviews / total_reviews * 100) if total_reviews > 0 else 0
+        )
 
         return {
             "summary": {
@@ -180,10 +192,10 @@ class AccessReviewAnalyzer:
                 "completed": completed_reviews,
                 "in_progress": in_progress,
                 "not_started": not_started,
-                "overall_completion_rate": round(overall_completion, 2)
+                "overall_completion_rate": round(overall_completion, 2),
             },
             "reviews": review_details,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def get_overdue_reviews(self) -> List[Dict[str, Any]]:
@@ -206,30 +218,40 @@ class AccessReviewAnalyzer:
                     continue
 
                 try:
-                    end_date = datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
+                    end_date = datetime.fromisoformat(
+                        end_date_str.replace("Z", "+00:00")
+                    )
                     end_date_naive = end_date.replace(tzinfo=None)
 
-                    if end_date_naive < current_time and instance.get("status") != "Completed":
+                    if (
+                        end_date_naive < current_time
+                        and instance.get("status") != "Completed"
+                    ):
                         # Get pending decisions
-                        decisions = self.get_review_decisions(review["id"], instance["id"])
+                        decisions = self.get_review_decisions(
+                            review["id"], instance["id"]
+                        )
                         pending_count = sum(
-                            1 for d in decisions
-                            if d.get("decision") == "NotReviewed"
+                            1 for d in decisions if d.get("decision") == "NotReviewed"
                         )
 
                         days_overdue = (current_time - end_date_naive).days
 
-                        overdue.append({
-                            "review_id": review["id"],
-                            "review_name": review.get("displayName"),
-                            "instance_id": instance["id"],
-                            "end_date": end_date_str,
-                            "days_overdue": days_overdue,
-                            "pending_decisions": pending_count,
-                            "severity": "HIGH" if days_overdue > 7 else "MEDIUM"
-                        })
+                        overdue.append(
+                            {
+                                "review_id": review["id"],
+                                "review_name": review.get("displayName"),
+                                "instance_id": instance["id"],
+                                "end_date": end_date_str,
+                                "days_overdue": days_overdue,
+                                "pending_decisions": pending_count,
+                                "severity": "HIGH" if days_overdue > 7 else "MEDIUM",
+                            }
+                        )
                 except Exception as e:
-                    logger.warning(f"Error parsing date for review {review.get('id')}: {e}")
+                    logger.warning(
+                        f"Error parsing date for review {review.get('id')}: {e}"
+                    )
 
         overdue.sort(key=lambda x: x["days_overdue"], reverse=True)
         logger.info(f"Found {len(overdue)} overdue reviews")
@@ -267,23 +289,33 @@ class AccessReviewAnalyzer:
             completed = reviewer_completed.get(reviewer_id, 0)
             completion_rate = (completed / total * 100) if total > 0 else 0
 
-            reviewer_performance.append({
-                "reviewer_id": reviewer_id,
-                "total_reviews_assigned": total,
-                "completed_reviews": completed,
-                "completion_rate": round(completion_rate, 2),
-                "performance_rating": "Good" if completion_rate >= 80 else "Needs Improvement"
-            })
+            reviewer_performance.append(
+                {
+                    "reviewer_id": reviewer_id,
+                    "total_reviews_assigned": total,
+                    "completed_reviews": completed,
+                    "completion_rate": round(completion_rate, 2),
+                    "performance_rating": (
+                        "Good" if completion_rate >= 80 else "Needs Improvement"
+                    ),
+                }
+            )
 
         reviewer_performance.sort(key=lambda x: x["completion_rate"], reverse=True)
 
         return {
             "total_reviewers": len(reviewer_stats),
-            "average_completion_rate": round(
-                sum(r["completion_rate"] for r in reviewer_performance) / len(reviewer_performance), 2
-            ) if reviewer_performance else 0,
+            "average_completion_rate": (
+                round(
+                    sum(r["completion_rate"] for r in reviewer_performance)
+                    / len(reviewer_performance),
+                    2,
+                )
+                if reviewer_performance
+                else 0
+            ),
             "reviewers": reviewer_performance,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def generate_review_report(self) -> Dict[str, Any]:
@@ -319,19 +351,25 @@ class AccessReviewAnalyzer:
 
         return {
             "summary": {
-                "total_reviews": completion_analysis["summary"]["total_review_instances"],
-                "completion_rate": completion_analysis["summary"]["overall_completion_rate"],
+                "total_reviews": completion_analysis["summary"][
+                    "total_review_instances"
+                ],
+                "completion_rate": completion_analysis["summary"][
+                    "overall_completion_rate"
+                ],
                 "pending_reviews": len(pending_reviews),
-                "overdue_reviews": len(overdue_reviews)
+                "overdue_reviews": len(overdue_reviews),
             },
             "completion_analysis": completion_analysis,
             "pending_reviews": pending_reviews[:10],  # Top 10
             "overdue_reviews": overdue_reviews[:10],  # Top 10
             "recommendations": recommendations,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
-    def send_reviewer_reminder(self, review_id: str, instance_id: str, reviewer_id: str) -> bool:
+    def send_reviewer_reminder(
+        self, review_id: str, instance_id: str, reviewer_id: str
+    ) -> bool:
         """
         Send reminder to reviewer (placeholder for email/notification integration)
 
@@ -344,7 +382,9 @@ class AccessReviewAnalyzer:
             True if reminder sent successfully
         """
         # This is a placeholder - in production, integrate with email service
-        logger.info(f"Reminder would be sent to reviewer {reviewer_id} for review {review_id}/{instance_id}")
+        logger.info(
+            f"Reminder would be sent to reviewer {reviewer_id} for review {review_id}/{instance_id}"
+        )
 
         # Could integrate with:
         # - Microsoft Graph sendMail API
@@ -381,8 +421,7 @@ class AccessReviewAnalyzer:
                 if 0 <= days_until_due <= days_before_due:
                     # Get reviewers with pending decisions
                     decisions = self.get_review_decisions(
-                        review["review_id"],
-                        review["instance_id"]
+                        review["review_id"], review["instance_id"]
                     )
 
                     for decision in decisions:
@@ -392,12 +431,14 @@ class AccessReviewAnalyzer:
                                 self.send_reviewer_reminder(
                                     review["review_id"],
                                     review["instance_id"],
-                                    reviewer_id
+                                    reviewer_id,
                                 )
                                 reminders_sent += 1
 
             except Exception as e:
-                logger.warning(f"Error processing reminder for review {review.get('review_id')}: {e}")
+                logger.warning(
+                    f"Error processing reminder for review {review.get('review_id')}: {e}"
+                )
 
         logger.info(f"Sent {reminders_sent} reviewer reminders")
         return reminders_sent

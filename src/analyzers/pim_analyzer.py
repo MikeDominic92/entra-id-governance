@@ -27,7 +27,7 @@ class PIMAnalyzer:
         "SharePoint Administrator",
         "User Administrator",
         "Application Administrator",
-        "Cloud Application Administrator"
+        "Cloud Application Administrator",
     ]
 
     def __init__(self, use_beta: bool = True):
@@ -48,7 +48,9 @@ class PIMAnalyzer:
         """
         try:
             logger.info("Fetching directory role definitions")
-            roles = self.client.get_all_pages("roleManagement/directory/roleDefinitions")
+            roles = self.client.get_all_pages(
+                "roleManagement/directory/roleDefinitions"
+            )
             logger.info(f"Retrieved {len(roles)} role definitions")
             return roles
         except GraphAPIError as e:
@@ -110,7 +112,7 @@ class PIMAnalyzer:
 
             requests = self.client.get_all_pages(
                 "roleManagement/directory/roleAssignmentScheduleRequests",
-                params={"$filter": filter_query}
+                params={"$filter": filter_query},
             )
             logger.info(f"Retrieved {len(requests)} activation requests")
             return requests
@@ -119,8 +121,7 @@ class PIMAnalyzer:
             return []
 
     def detect_standing_admin_access(
-        self,
-        active_assignments: Optional[List[Dict[str, Any]]] = None
+        self, active_assignments: Optional[List[Dict[str, Any]]] = None
     ) -> List[Dict[str, Any]]:
         """
         Detect standing (permanent) administrator access - a security violation
@@ -154,22 +155,26 @@ class PIMAnalyzer:
                 else:
                     # If end date is more than 1 year away, consider it permanent
                     try:
-                        end_date = datetime.fromisoformat(end_date_time.replace("Z", "+00:00"))
+                        end_date = datetime.fromisoformat(
+                            end_date_time.replace("Z", "+00:00")
+                        )
                         if (end_date - datetime.now(end_date.tzinfo)).days > 365:
                             is_permanent = True
                     except:
                         pass
 
                 if is_permanent:
-                    violations.append({
-                        "principal_id": assignment.get("principalId"),
-                        "role_name": role_name,
-                        "role_id": role_id,
-                        "assignment_id": assignment.get("id"),
-                        "severity": "HIGH",
-                        "description": f"Standing access to {role_name} detected. Should use PIM eligible assignment instead.",
-                        "recommendation": "Convert to PIM eligible assignment with just-in-time activation"
-                    })
+                    violations.append(
+                        {
+                            "principal_id": assignment.get("principalId"),
+                            "role_name": role_name,
+                            "role_id": role_id,
+                            "assignment_id": assignment.get("id"),
+                            "severity": "HIGH",
+                            "description": f"Standing access to {role_name} detected. Should use PIM eligible assignment instead.",
+                            "recommendation": "Convert to PIM eligible assignment with just-in-time activation",
+                        }
+                    )
 
         logger.info(f"Detected {len(violations)} standing admin access violations")
         return violations
@@ -177,7 +182,7 @@ class PIMAnalyzer:
     def analyze_pim_usage(
         self,
         eligible_assignments: Optional[List[Dict[str, Any]]] = None,
-        active_assignments: Optional[List[Dict[str, Any]]] = None
+        active_assignments: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
         """
         Analyze overall PIM usage and compliance
@@ -218,30 +223,36 @@ class PIMAnalyzer:
             critical_role_stats[role_name] = {
                 "eligible": eligible_by_role.get(role_name, 0),
                 "active": active_by_role.get(role_name, 0),
-                "pim_adoption": eligible_by_role.get(role_name, 0) > 0
+                "pim_adoption": eligible_by_role.get(role_name, 0) > 0,
             }
 
         # Calculate compliance score
-        roles_using_pim = sum(1 for stats in critical_role_stats.values() if stats["pim_adoption"])
-        compliance_score = (roles_using_pim / len(self.CRITICAL_ROLES)) * 100 if self.CRITICAL_ROLES else 0
+        roles_using_pim = sum(
+            1 for stats in critical_role_stats.values() if stats["pim_adoption"]
+        )
+        compliance_score = (
+            (roles_using_pim / len(self.CRITICAL_ROLES)) * 100
+            if self.CRITICAL_ROLES
+            else 0
+        )
 
         return {
             "summary": {
                 "total_eligible_assignments": len(eligible_assignments),
                 "total_active_assignments": len(active_assignments),
                 "unique_roles_with_pim": len(eligible_by_role),
-                "compliance_score": round(compliance_score, 2)
+                "compliance_score": round(compliance_score, 2),
             },
             "critical_roles": critical_role_stats,
             "top_eligible_roles": dict(eligible_by_role.most_common(10)),
             "top_active_roles": dict(active_by_role.most_common(10)),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def check_excessive_role_assignments(
         self,
         eligible_assignments: Optional[List[Dict[str, Any]]] = None,
-        threshold: int = 5
+        threshold: int = 5,
     ) -> List[Dict[str, Any]]:
         """
         Detect users with excessive role assignments
@@ -277,16 +288,20 @@ class PIMAnalyzer:
         excessive_assignments = []
         for principal_id, count in user_role_count.items():
             if count >= threshold:
-                excessive_assignments.append({
-                    "principal_id": principal_id,
-                    "role_count": count,
-                    "roles": user_roles[principal_id],
-                    "severity": "HIGH" if count >= threshold * 2 else "MEDIUM",
-                    "recommendation": "Review if all role assignments are necessary. Apply least privilege principle."
-                })
+                excessive_assignments.append(
+                    {
+                        "principal_id": principal_id,
+                        "role_count": count,
+                        "roles": user_roles[principal_id],
+                        "severity": "HIGH" if count >= threshold * 2 else "MEDIUM",
+                        "recommendation": "Review if all role assignments are necessary. Apply least privilege principle.",
+                    }
+                )
 
         excessive_assignments.sort(key=lambda x: x["role_count"], reverse=True)
-        logger.info(f"Found {len(excessive_assignments)} users with {threshold}+ role assignments")
+        logger.info(
+            f"Found {len(excessive_assignments)} users with {threshold}+ role assignments"
+        )
 
         return excessive_assignments
 
@@ -304,7 +319,8 @@ class PIMAnalyzer:
 
         # Filter for activation requests
         activations = [
-            r for r in requests
+            r
+            for r in requests
             if r.get("action") == "adminAssign" or r.get("action") == "selfActivate"
         ]
 
@@ -331,7 +347,7 @@ class PIMAnalyzer:
             "most_activated_roles": dict(activations_by_role.most_common(10)),
             "most_active_users": dict(activations_by_user.most_common(10)),
             "average_activations_per_day": round(len(activations) / days, 2),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def generate_pim_recommendations(self) -> List[str]:
@@ -389,6 +405,8 @@ class PIMAnalyzer:
 
         except Exception as e:
             logger.error(f"Error generating recommendations: {e}")
-            recommendations.append(f"ERROR: Unable to generate full recommendations: {e}")
+            recommendations.append(
+                f"ERROR: Unable to generate full recommendations: {e}"
+            )
 
         return recommendations

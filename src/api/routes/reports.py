@@ -34,12 +34,14 @@ async def export_compliance_report(format: str = "json"):
         elif format.lower() == "csv":
             filepath = reporter.export_to_csv(report)
         else:
-            raise HTTPException(status_code=400, detail="Invalid format. Use 'json' or 'csv'")
+            raise HTTPException(
+                status_code=400, detail="Invalid format. Use 'json' or 'csv'"
+            )
 
         return FileResponse(
             path=filepath,
             filename=filepath.split("\\")[-1],
-            media_type="application/octet-stream"
+            media_type="application/octet-stream",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

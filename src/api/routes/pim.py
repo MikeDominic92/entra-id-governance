@@ -14,6 +14,7 @@ router = APIRouter()
 
 class ActivateRoleRequest(BaseModel):
     """Request model for role activation"""
+
     principal_id: str
     role_definition_id: str
     justification: str
@@ -23,6 +24,7 @@ class ActivateRoleRequest(BaseModel):
 
 class DeactivateRoleRequest(BaseModel):
     """Request model for role deactivation"""
+
     principal_id: str
     role_definition_id: str
     justification: str = "Manual deactivation"
@@ -148,7 +150,7 @@ async def activate_role(request: ActivateRoleRequest):
             role_definition_id=request.role_definition_id,
             justification=request.justification,
             duration_hours=request.duration_hours,
-            ticket_number=request.ticket_number
+            ticket_number=request.ticket_number,
         )
         return result
     except Exception as e:
@@ -163,7 +165,7 @@ async def deactivate_role(request: DeactivateRoleRequest):
         result = activator.deactivate_role(
             principal_id=request.principal_id,
             role_definition_id=request.role_definition_id,
-            justification=request.justification
+            justification=request.justification,
         )
         return result
     except Exception as e:
