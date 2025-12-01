@@ -66,3 +66,5 @@ credentials.json
 secrets/
 *.pem
 *.key
+
+!frontend/src/lib/

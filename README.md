@@ -332,11 +332,31 @@ Automate access review reminders and bulk approvals
 ### 5. Policy Management
 Standardize and enforce Conditional Access policies across tenants
 
+## Frontend Dashboard
+
+A modern React/Next.js frontend is available with a dark cyber aesthetic:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend will open at `http://localhost:3000`
+
+**Frontend Screenshots:**
+
+| Dashboard | Conditional Access | PIM |
+|-----------|-------------------|-----|
+| ![Dashboard](docs/screenshots/dashboard_verification_1764615323909.png) | ![CA](docs/screenshots/conditional_access_verification_1764615338655.png) | ![PIM](docs/screenshots/pim_verification_1764615355559.png) |
+
+See [Frontend Walkthrough](docs/FRONTEND_WALKTHROUGH.md) for full documentation.
+
 ## Roadmap
 
+- [x] React dashboard frontend
 - [ ] Multi-tenant support
 - [ ] Terraform/Bicep deployment templates
-- [ ] React dashboard frontend
 - [ ] Azure DevOps integration
 - [ ] ServiceNow webhook support
 - [ ] Real-time alerts via Microsoft Teams
