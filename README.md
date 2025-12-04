@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/screenshots/dashboard_verification_1764615323909.png" alt="Entra ID Governance" width="800"/>
+  <img src="docs/images/dashboard-new.png" alt="Entra ID Governance" width="800"/>
 </p>
 
 <h1 align="center">Entra ID Governance Toolkit</h1>
@@ -86,7 +86,7 @@ Complete governance automation across all Entra ID pillars:
 <table>
 <tr>
 <td align="center" width="33%">
-<img src="docs/screenshots/dashboard_verification_1764615323909.png" alt="Dashboard"/>
+<img src="docs/images/dashboard-new.png" alt="Dashboard"/>
 <br/><strong>Governance Dashboard</strong>
 <br/>KPIs and security score
 </td>
@@ -108,12 +108,12 @@ Complete governance automation across all Entra ID pillars:
 <table>
 <tr>
 <td align="center" width="50%">
-<img src="docs/screenshots/access_reviews_verification_1764615372795.png" alt="Access Reviews"/>
+<img src="docs/images/access-reviews-new.png" alt="Access Reviews"/>
 <br/><strong>Access Reviews</strong>
 <br/>Completion tracking
 </td>
 <td align="center" width="50%">
-<img src="docs/screenshots/compliance_verification_1764615388733.png" alt="Compliance"/>
+<img src="docs/images/compliance-new.png" alt="Compliance"/>
 <br/><strong>Compliance Reports</strong>
 <br/>Audit-ready evidence
 </td>
