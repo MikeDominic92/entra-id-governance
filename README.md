@@ -7,7 +7,54 @@
 
 A comprehensive toolkit for Microsoft Entra ID (formerly Azure AD) identity governance automation, analysis, and reporting. This project demonstrates enterprise-level identity security controls and governance automation.
 
+## Screenshots
+
+### Dashboard Overview
+![Dashboard](docs/screenshots/entra_dashboard_01.png)
+
+### Conditional Access Analysis
+![Conditional Access](docs/screenshots/entra_conditional_access_02.png)
+
+### PIM Analysis
+![PIM Analysis](docs/screenshots/entra_pim_analysis_03.png)
+
+### API Documentation
+![API Documentation](docs/screenshots/entra_api_docs_04.png)
+
 ## Features
+
+### Splunk SIEM Integration (v1.1 - NEW!)
+
+**December 2025 Enhancement** - Enterprise-grade SIEM integration for identity governance events:
+
+- **HTTP Event Collector (HEC) Integration**
+  - Secure token-based authentication
+  - Batch event submission with retry logic
+  - SSL verification and timeout configuration
+  - Mock mode for demos and testing
+
+- **Event Forwarding to Splunk**
+  - Access review events (pending, approved, denied)
+  - PIM role activation events with risk scoring
+  - Conditional Access policy changes
+  - Entitlement management changes
+  - Compliance violation detection
+  - CIM (Common Information Model) format mapping
+
+- **Alert Reception via Webhook**
+  - Receive Splunk correlation alerts
+  - Enhanced correlation score calculation
+  - Automated remediation workflow triggers
+  - Alert deduplication and caching
+  - Category-based alert routing
+
+- **REST API Endpoints**
+  - `/api/v1/splunk/health` - Integration health check
+  - `/api/v1/splunk/config` - Configuration status
+  - `/api/v1/splunk/statistics` - Event forwarding statistics
+  - `/api/v1/splunk/events/forward` - Manual event forwarding
+  - `/api/v1/splunk/alerts/webhook` - Splunk alert webhook receiver
+  - `/api/v1/splunk/test/send-event` - Connectivity testing
 
 ### Conditional Access Analysis
 - Fetch and analyze all CA policies
@@ -243,13 +290,30 @@ entra-id-governance/
 Edit `.env` file:
 
 ```env
+# Azure AD Configuration
 AZURE_TENANT_ID=your-tenant-id
 AZURE_CLIENT_ID=your-client-id
 AZURE_CLIENT_SECRET=your-client-secret
 
+# API Configuration
 API_HOST=0.0.0.0
 API_PORT=8000
 LOG_LEVEL=INFO
+
+# Splunk SIEM Integration (v1.1 - December 2025)
+SPLUNK_ENABLED=true
+SPLUNK_MOCK_MODE=false
+SPLUNK_HEC_URL=https://splunk.example.com:8088
+SPLUNK_HEC_TOKEN=your-hec-token
+SPLUNK_INDEX=entra_id_governance
+SPLUNK_VERIFY_SSL=true
+SPLUNK_AUTO_REMEDIATION=false
+
+# Event Forwarding Flags
+SPLUNK_FORWARD_ACCESS_REVIEWS=true
+SPLUNK_FORWARD_PIM_ACTIVATIONS=true
+SPLUNK_FORWARD_POLICY_CHANGES=true
+SPLUNK_FORWARD_COMPLIANCE_VIOLATIONS=true
 ```
 
 ## Testing
@@ -355,12 +419,15 @@ See [Frontend Walkthrough](docs/FRONTEND_WALKTHROUGH.md) for full documentation.
 ## Roadmap
 
 - [x] React dashboard frontend
+- [x] Splunk SIEM integration (v1.1 - December 2025)
 - [ ] Multi-tenant support
 - [ ] Terraform/Bicep deployment templates
 - [ ] Azure DevOps integration
 - [ ] ServiceNow webhook support
 - [ ] Real-time alerts via Microsoft Teams
 - [ ] Historical trend analysis with database
+- [ ] Sentinel integration (v1.2 planned)
+- [ ] Additional SIEM connectors (QRadar, ArcSight)
 
 ## Contributing
 

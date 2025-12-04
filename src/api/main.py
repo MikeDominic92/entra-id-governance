@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from ..config import settings
-from .routes import policies, pim, reports
+from .routes import policies, pim, reports, splunk
 
 # Configure logging
 logging.basicConfig(
@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app
 app = FastAPI(
     title="Entra ID Governance API",
-    description="REST API for Microsoft Entra ID Governance automation and analysis",
-    version="0.1.0",
+    description="REST API for Microsoft Entra ID Governance automation and analysis with Splunk SIEM integration",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -45,6 +45,8 @@ app.include_router(
     pim.router, prefix="/api/v1/pim", tags=["Privileged Identity Management"]
 )
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"])
+# v1.1 Enhancement - December 2025: Splunk SIEM Integration
+app.include_router(splunk.router, prefix="/api/v1/splunk", tags=["Splunk SIEM"])
 
 
 @app.get("/")
@@ -52,8 +54,8 @@ async def root():
     """Root endpoint with API information"""
     return {
         "name": "Entra ID Governance API",
-        "version": "0.1.0",
-        "description": "Microsoft Entra ID Governance automation and analysis",
+        "version": "1.1.0",
+        "description": "Microsoft Entra ID Governance automation and analysis with Splunk SIEM integration",
         "endpoints": {
             "docs": "/docs",
             "redoc": "/redoc",
@@ -61,6 +63,7 @@ async def root():
             "conditional_access": "/api/v1/policies",
             "pim": "/api/v1/pim",
             "reports": "/api/v1/reports",
+            "splunk": "/api/v1/splunk",  # v1.1 Enhancement
         },
     }
 
