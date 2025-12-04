@@ -50,9 +50,7 @@ class SplunkConfig(BaseModel):
         description="Splunk HEC endpoint URL",
     )
     hec_token: str = Field(default="", description="HEC authentication token")
-    index: str = Field(
-        default="entra_id_governance", description="Target Splunk index"
-    )
+    index: str = Field(default="entra_id_governance", description="Target Splunk index")
     source: str = Field(
         default="entra_governance_toolkit", description="Event source identifier"
     )
@@ -75,9 +73,15 @@ class SplunkConfig(BaseModel):
     )
 
     # Event forwarding
-    forward_access_reviews: bool = Field(default=True, description="Forward access review events")
-    forward_pim_activations: bool = Field(default=True, description="Forward PIM activation events")
-    forward_policy_changes: bool = Field(default=True, description="Forward policy change events")
+    forward_access_reviews: bool = Field(
+        default=True, description="Forward access review events"
+    )
+    forward_pim_activations: bool = Field(
+        default=True, description="Forward PIM activation events"
+    )
+    forward_policy_changes: bool = Field(
+        default=True, description="Forward policy change events"
+    )
     forward_compliance_violations: bool = Field(
         default=True, description="Forward compliance violation events"
     )
@@ -85,7 +89,11 @@ class SplunkConfig(BaseModel):
     @validator("hec_token")
     def validate_token(cls, v, values):
         """Validate HEC token is provided if Splunk is enabled"""
-        if values.get("enabled", False) and not values.get("mock_mode", False) and not v:
+        if (
+            values.get("enabled", False)
+            and not values.get("mock_mode", False)
+            and not v
+        ):
             raise ValueError("HEC token is required when Splunk integration is enabled")
         return v
 
@@ -178,11 +186,24 @@ class Settings:
                 max_retries=int(os.getenv("SPLUNK_MAX_RETRIES", "3")),
                 enabled=os.getenv("SPLUNK_ENABLED", "false").lower() == "true",
                 mock_mode=os.getenv("SPLUNK_MOCK_MODE", "false").lower() == "true",
-                auto_remediation=os.getenv("SPLUNK_AUTO_REMEDIATION", "false").lower() == "true",
-                forward_access_reviews=os.getenv("SPLUNK_FORWARD_ACCESS_REVIEWS", "true").lower() == "true",
-                forward_pim_activations=os.getenv("SPLUNK_FORWARD_PIM_ACTIVATIONS", "true").lower() == "true",
-                forward_policy_changes=os.getenv("SPLUNK_FORWARD_POLICY_CHANGES", "true").lower() == "true",
-                forward_compliance_violations=os.getenv("SPLUNK_FORWARD_COMPLIANCE_VIOLATIONS", "true").lower() == "true",
+                auto_remediation=os.getenv("SPLUNK_AUTO_REMEDIATION", "false").lower()
+                == "true",
+                forward_access_reviews=os.getenv(
+                    "SPLUNK_FORWARD_ACCESS_REVIEWS", "true"
+                ).lower()
+                == "true",
+                forward_pim_activations=os.getenv(
+                    "SPLUNK_FORWARD_PIM_ACTIVATIONS", "true"
+                ).lower()
+                == "true",
+                forward_policy_changes=os.getenv(
+                    "SPLUNK_FORWARD_POLICY_CHANGES", "true"
+                ).lower()
+                == "true",
+                forward_compliance_violations=os.getenv(
+                    "SPLUNK_FORWARD_COMPLIANCE_VIOLATIONS", "true"
+                ).lower()
+                == "true",
             )
         return self._splunk_config
 

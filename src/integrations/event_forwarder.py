@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class CIMDataModel(Enum):
     """Splunk Common Information Model data models"""
+
     AUTHENTICATION = "Authentication"
     CHANGE = "Change"
     IDENTITY_MANAGEMENT = "Identity_Management"
@@ -60,7 +61,7 @@ class EventForwarder:
         reviewer: str,
         decision: Optional[str] = None,
         justification: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Forward access review event to Splunk.
@@ -87,12 +88,10 @@ class EventForwarder:
             "user": reviewer,
             "object": target_resource,
             "result": decision or "pending",
-
             # Entra ID specific fields
             "review_id": review_id,
             "review_name": review_name,
             "justification": justification,
-
             # Metadata
             "vendor": "Microsoft",
             "product": "Entra ID",
@@ -106,8 +105,7 @@ class EventForwarder:
             cim_event.update(metadata)
 
         success = self.connector.send_event(
-            cim_event,
-            event_type=SplunkEventType.ACCESS_REVIEW
+            cim_event, event_type=SplunkEventType.ACCESS_REVIEW
         )
 
         if success:
@@ -124,7 +122,7 @@ class EventForwarder:
         justification: str,
         status: str,
         risk_score: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Forward PIM role activation event to Splunk.
@@ -151,13 +149,11 @@ class EventForwarder:
             "user": user_principal_name,
             "object": role_name,
             "result": status,
-
             # Entra ID specific fields
             "activation_id": activation_id,
             "activation_duration_minutes": activation_duration,
             "justification": justification,
             "risk_score": risk_score or 0.0,
-
             # Metadata
             "vendor": "Microsoft",
             "product": "Entra ID PIM",
@@ -171,8 +167,7 @@ class EventForwarder:
             cim_event.update(metadata)
 
         success = self.connector.send_event(
-            cim_event,
-            event_type=SplunkEventType.PRIVILEGE_ESCALATION
+            cim_event, event_type=SplunkEventType.PRIVILEGE_ESCALATION
         )
 
         if success:
@@ -188,7 +183,7 @@ class EventForwarder:
         change_type: str,
         changed_by: str,
         changes: Dict[str, Any],
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Forward Conditional Access policy change event to Splunk.
@@ -215,16 +210,16 @@ class EventForwarder:
             "object": policy_name,
             "object_category": policy_type,
             "result": "success",
-
             # Entra ID specific fields
             "policy_id": policy_id,
             "changes": changes,
-
             # Metadata
             "vendor": "Microsoft",
             "product": "Entra ID",
             "category": "Policy Management",
-            "severity": self._calculate_policy_change_severity(change_type, policy_type),
+            "severity": self._calculate_policy_change_severity(
+                change_type, policy_type
+            ),
             "timestamp": datetime.utcnow().isoformat(),
         }
 
@@ -233,8 +228,7 @@ class EventForwarder:
             cim_event.update(metadata)
 
         success = self.connector.send_event(
-            cim_event,
-            event_type=SplunkEventType.POLICY_CHANGE
+            cim_event, event_type=SplunkEventType.POLICY_CHANGE
         )
 
         if success:
@@ -251,7 +245,7 @@ class EventForwarder:
         resource: str,
         access_level: str,
         changed_by: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Forward entitlement management change event to Splunk.
@@ -278,13 +272,11 @@ class EventForwarder:
             "user": affected_user,
             "object": resource,
             "result": "success",
-
             # Entra ID specific fields
             "entitlement_id": entitlement_id,
             "entitlement_name": entitlement_name,
             "access_level": access_level,
             "changed_by": changed_by,
-
             # Metadata
             "vendor": "Microsoft",
             "product": "Entra ID",
@@ -298,8 +290,7 @@ class EventForwarder:
             cim_event.update(metadata)
 
         success = self.connector.send_event(
-            cim_event,
-            event_type=SplunkEventType.ENTITLEMENT_CHANGE
+            cim_event, event_type=SplunkEventType.ENTITLEMENT_CHANGE
         )
 
         if success:
@@ -315,7 +306,7 @@ class EventForwarder:
         affected_entity: str,
         description: str,
         remediation: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Forward compliance violation event to Splunk.
@@ -340,13 +331,11 @@ class EventForwarder:
             "status": "detected",
             "object": affected_entity,
             "result": violation_type,
-
             # Entra ID specific fields
             "violation_id": violation_id,
             "violation_type": violation_type,
             "description": description,
             "remediation": remediation,
-
             # Metadata
             "vendor": "Microsoft",
             "product": "Entra ID Governance",
@@ -360,8 +349,7 @@ class EventForwarder:
             cim_event.update(metadata)
 
         success = self.connector.send_event(
-            cim_event,
-            event_type=SplunkEventType.COMPLIANCE_VIOLATION
+            cim_event, event_type=SplunkEventType.COMPLIANCE_VIOLATION
         )
 
         if success:
@@ -370,9 +358,7 @@ class EventForwarder:
         return success
 
     def forward_batch_events(
-        self,
-        events: List[Dict[str, Any]],
-        event_type: SplunkEventType
+        self, events: List[Dict[str, Any]], event_type: SplunkEventType
     ) -> bool:
         """
         Forward multiple events in batch.
@@ -391,11 +377,7 @@ class EventForwarder:
 
         return success
 
-    def _calculate_review_severity(
-        self,
-        status: str,
-        decision: Optional[str]
-    ) -> str:
+    def _calculate_review_severity(self, status: str, decision: Optional[str]) -> str:
         """Calculate severity for access review events"""
         if decision == "denied":
             return "medium"
@@ -406,15 +388,13 @@ class EventForwarder:
         return "info"
 
     def _calculate_pim_severity(
-        self,
-        role_name: str,
-        risk_score: Optional[float]
+        self, role_name: str, risk_score: Optional[float]
     ) -> str:
         """Calculate severity for PIM activation events"""
         high_risk_roles = [
             "Global Administrator",
             "Privileged Role Administrator",
-            "Security Administrator"
+            "Security Administrator",
         ]
 
         if role_name in high_risk_roles:
@@ -426,9 +406,7 @@ class EventForwarder:
         return "low"
 
     def _calculate_policy_change_severity(
-        self,
-        change_type: str,
-        policy_type: str
+        self, change_type: str, policy_type: str
     ) -> str:
         """Calculate severity for policy change events"""
         if change_type in ["deleted", "disabled"]:
@@ -440,9 +418,7 @@ class EventForwarder:
         return "low"
 
     def _calculate_entitlement_severity(
-        self,
-        change_type: str,
-        access_level: str
+        self, change_type: str, access_level: str
     ) -> str:
         """Calculate severity for entitlement change events"""
         if change_type == "granted" and "admin" in access_level.lower():
@@ -460,5 +436,5 @@ class EventForwarder:
         """
         return {
             "events_forwarded": self.events_forwarded,
-            "connector_stats": self.connector.get_statistics()
+            "connector_stats": self.connector.get_statistics(),
         }

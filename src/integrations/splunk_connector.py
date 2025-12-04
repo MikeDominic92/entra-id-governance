@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class SplunkEventType(Enum):
     """Splunk event types for categorization"""
+
     AUTHENTICATION = "authentication"
     ACCESS_REVIEW = "access_review"
     PRIVILEGE_ESCALATION = "privilege_escalation"
@@ -51,7 +52,7 @@ class SplunkHECConnector:
         verify_ssl: bool = True,
         mock_mode: bool = False,
         timeout: int = 30,
-        max_retries: int = 3
+        max_retries: int = 3,
     ):
         """
         Initialize Splunk HEC connector.
@@ -67,7 +68,7 @@ class SplunkHECConnector:
             timeout: HTTP request timeout in seconds
             max_retries: Maximum retry attempts for failed requests
         """
-        self.hec_url = hec_url.rstrip('/')
+        self.hec_url = hec_url.rstrip("/")
         self.hec_token = hec_token
         self.index = index
         self.source = source
@@ -95,7 +96,7 @@ class SplunkHECConnector:
         """Get HTTP headers for HEC requests"""
         return {
             "Authorization": f"Splunk {self.hec_token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
     def send_event(
@@ -103,7 +104,7 @@ class SplunkHECConnector:
         event_data: Dict[str, Any],
         event_type: Optional[SplunkEventType] = None,
         host: Optional[str] = None,
-        time: Optional[float] = None
+        time: Optional[float] = None,
     ) -> bool:
         """
         Send a single event to Splunk HEC.
@@ -124,7 +125,7 @@ class SplunkHECConnector:
         events: List[Dict[str, Any]],
         event_type: Optional[SplunkEventType] = None,
         host: Optional[str] = None,
-        time: Optional[float] = None
+        time: Optional[float] = None,
     ) -> bool:
         """
         Send multiple events to Splunk HEC in batch.
@@ -175,7 +176,7 @@ class SplunkHECConnector:
         events: List[Dict[str, Any]],
         event_type: Optional[SplunkEventType],
         host: Optional[str],
-        time: Optional[float]
+        time: Optional[float],
     ) -> str:
         """
         Build HEC-compliant JSON payload.
@@ -198,7 +199,7 @@ class SplunkHECConnector:
                 "source": self.source,
                 "sourcetype": self.sourcetype,
                 "index": self.index,
-                "event": event
+                "event": event,
             }
 
             # Add event type if specified
@@ -224,11 +225,13 @@ class SplunkHECConnector:
 
         for attempt in range(self.max_retries):
             try:
-                with httpx.Client(verify=self.verify_ssl, timeout=self.timeout) as client:
+                with httpx.Client(
+                    verify=self.verify_ssl, timeout=self.timeout
+                ) as client:
                     response = client.post(
                         self.event_endpoint,
                         headers=self._get_headers(),
-                        content=payload
+                        content=payload,
                     )
 
                     if response.status_code == 200:
@@ -245,7 +248,9 @@ class SplunkHECConnector:
                     f"Attempt {attempt + 1}/{self.max_retries} failed: {last_error}"
                 )
 
-        logger.error(f"All {self.max_retries} attempts failed. Last error: {last_error}")
+        logger.error(
+            f"All {self.max_retries} attempts failed. Last error: {last_error}"
+        )
         return False
 
     def health_check(self) -> bool:
@@ -264,7 +269,7 @@ class SplunkHECConnector:
             test_event = {
                 "message": "Health check from Entra ID Governance Toolkit",
                 "check_type": "connectivity",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.utcnow().isoformat(),
             }
 
             return self.send_event(test_event)
@@ -289,5 +294,5 @@ class SplunkHECConnector:
                 if (self.events_sent + self.events_failed) > 0
                 else 0.0
             ),
-            "mock_mode": self.mock_mode
+            "mock_mode": self.mock_mode,
         }

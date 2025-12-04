@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class AlertSeverity(Enum):
     """Alert severity levels"""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -27,6 +28,7 @@ class AlertSeverity(Enum):
 
 class AlertCategory(Enum):
     """Alert categories for correlation"""
+
     ANOMALOUS_ACCESS = "anomalous_access"
     PRIVILEGE_ABUSE = "privilege_abuse"
     POLICY_VIOLATION = "policy_violation"
@@ -41,21 +43,28 @@ class SplunkAlert(BaseModel):
 
     v1.1 Enhancement - December 2025
     """
+
     alert_id: str = Field(..., description="Unique alert identifier")
-    search_name: str = Field(..., description="Name of Splunk search that triggered alert")
+    search_name: str = Field(
+        ..., description="Name of Splunk search that triggered alert"
+    )
     severity: AlertSeverity = Field(..., description="Alert severity")
     category: AlertCategory = Field(..., description="Alert category")
     description: str = Field(..., description="Alert description")
 
     # Affected entities
     affected_user: Optional[str] = Field(None, description="User involved in alert")
-    affected_resource: Optional[str] = Field(None, description="Resource involved in alert")
+    affected_resource: Optional[str] = Field(
+        None, description="Resource involved in alert"
+    )
     source_ip: Optional[str] = Field(None, description="Source IP address")
 
     # Correlation data
     event_count: int = Field(default=1, description="Number of correlated events")
     time_window: int = Field(default=300, description="Time window in seconds")
-    correlation_score: float = Field(default=0.0, ge=0.0, le=100.0, description="Correlation score")
+    correlation_score: float = Field(
+        default=0.0, ge=0.0, le=100.0, description="Correlation score"
+    )
 
     # Timestamps
     first_seen: str = Field(..., description="First event timestamp")
@@ -63,7 +72,9 @@ class SplunkAlert(BaseModel):
     triggered_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
 
     # Additional context
-    raw_events: Optional[List[Dict[str, Any]]] = Field(None, description="Raw correlated events")
+    raw_events: Optional[List[Dict[str, Any]]] = Field(
+        None, description="Raw correlated events"
+    )
     metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
 
     @validator("correlation_score")
@@ -116,9 +127,7 @@ class AlertReceiver:
         )
 
     def register_remediation_handler(
-        self,
-        category: AlertCategory,
-        handler: Callable[[SplunkAlert], bool]
+        self, category: AlertCategory, handler: Callable[[SplunkAlert], bool]
     ) -> None:
         """
         Register a remediation handler for an alert category.
@@ -155,7 +164,7 @@ class AlertReceiver:
                 return {
                     "status": "duplicate",
                     "alert_id": alert.alert_id,
-                    "message": "Alert already processed"
+                    "message": "Alert already processed",
                 }
 
             # Calculate enhanced correlation score
@@ -175,10 +184,7 @@ class AlertReceiver:
         except Exception as e:
             logger.error(f"Error processing alert: {e}")
             self.alerts_failed += 1
-            return {
-                "status": "error",
-                "message": str(e)
-            }
+            return {"status": "error", "message": str(e)}
 
     def _process_alert(self, alert: SplunkAlert) -> Dict[str, Any]:
         """
@@ -203,7 +209,7 @@ class AlertReceiver:
             "severity": alert.severity.value,
             "category": alert.category.value,
             "correlation_score": alert.correlation_score,
-            "actions_taken": []
+            "actions_taken": [],
         }
 
         # Trigger remediation if enabled and score is high enough
@@ -240,7 +246,7 @@ class AlertReceiver:
             AlertSeverity.HIGH: 1.2,
             AlertSeverity.MEDIUM: 1.0,
             AlertSeverity.LOW: 0.8,
-            AlertSeverity.INFO: 0.5
+            AlertSeverity.INFO: 0.5,
         }
         score *= severity_weights.get(alert.severity, 1.0)
 
@@ -340,7 +346,8 @@ class AlertReceiver:
         """Remove expired entries from alert cache"""
         now = datetime.utcnow()
         expired_ids = [
-            alert_id for alert_id, timestamp in self._alert_cache.items()
+            alert_id
+            for alert_id, timestamp in self._alert_cache.items()
             if (now - timestamp).total_seconds() > self._cache_ttl
         ]
 
@@ -365,14 +372,14 @@ class AlertReceiver:
             ),
             "remediation_actions_taken": self.remediation_actions_taken,
             "auto_remediation_enabled": self.enable_auto_remediation,
-            "cached_alerts": len(self._alert_cache)
+            "cached_alerts": len(self._alert_cache),
         }
 
     def get_alert_history(
         self,
         category: Optional[AlertCategory] = None,
         severity: Optional[AlertSeverity] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[str]:
         """
         Get cached alert IDs matching criteria.

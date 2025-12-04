@@ -63,6 +63,7 @@ def get_receiver() -> AlertReceiver:
 # Request/Response Models
 class HealthCheckResponse(BaseModel):
     """Health check response model"""
+
     status: str
     enabled: bool
     mock_mode: bool
@@ -72,6 +73,7 @@ class HealthCheckResponse(BaseModel):
 
 class StatisticsResponse(BaseModel):
     """Statistics response model"""
+
     connector: Dict[str, Any]
     forwarder: Dict[str, Any]
     receiver: Dict[str, Any]
@@ -79,13 +81,17 @@ class StatisticsResponse(BaseModel):
 
 class ForwardEventRequest(BaseModel):
     """Manual event forwarding request"""
-    event_type: str = Field(..., description="Event type (access_review, pim_activation, etc.)")
+
+    event_type: str = Field(
+        ..., description="Event type (access_review, pim_activation, etc.)"
+    )
     event_data: Dict[str, Any] = Field(..., description="Event payload")
     metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
 
 
 class AlertWebhookPayload(BaseModel):
     """Splunk alert webhook payload"""
+
     alert_id: str
     search_name: str
     severity: str
@@ -105,6 +111,7 @@ class AlertWebhookPayload(BaseModel):
 
 # API Endpoints
 
+
 @router.get("/health", response_model=HealthCheckResponse)
 async def health_check():
     """
@@ -120,7 +127,11 @@ async def health_check():
         hec_reachable = connector.health_check() if config.enabled else False
 
         return HealthCheckResponse(
-            status="healthy" if (config.enabled and hec_reachable) or config.mock_mode else "disabled",
+            status=(
+                "healthy"
+                if (config.enabled and hec_reachable) or config.mock_mode
+                else "disabled"
+            ),
             enabled=config.enabled,
             mock_mode=config.mock_mode,
             hec_reachable=hec_reachable,
@@ -190,7 +201,9 @@ async def get_statistics():
 
 
 @router.post("/events/forward")
-async def forward_event(request: ForwardEventRequest, background_tasks: BackgroundTasks):
+async def forward_event(
+    request: ForwardEventRequest, background_tasks: BackgroundTasks
+):
     """
     Manually forward an event to Splunk.
 
@@ -201,8 +214,7 @@ async def forward_event(request: ForwardEventRequest, background_tasks: Backgrou
 
         if not config.enabled and not config.mock_mode:
             raise HTTPException(
-                status_code=400,
-                detail="Splunk integration is not enabled"
+                status_code=400, detail="Splunk integration is not enabled"
             )
 
         forwarder = get_forwarder()
@@ -252,8 +264,7 @@ async def forward_event(request: ForwardEventRequest, background_tasks: Backgrou
             )
         else:
             raise HTTPException(
-                status_code=400,
-                detail=f"Unknown event type: {request.event_type}"
+                status_code=400, detail=f"Unknown event type: {request.event_type}"
             )
 
         if success:
@@ -264,8 +275,7 @@ async def forward_event(request: ForwardEventRequest, background_tasks: Backgrou
             }
         else:
             raise HTTPException(
-                status_code=500,
-                detail="Failed to forward event to Splunk"
+                status_code=500, detail="Failed to forward event to Splunk"
             )
 
     except HTTPException:
@@ -276,7 +286,9 @@ async def forward_event(request: ForwardEventRequest, background_tasks: Backgrou
 
 
 @router.post("/alerts/webhook")
-async def receive_alert(payload: AlertWebhookPayload, background_tasks: BackgroundTasks):
+async def receive_alert(
+    payload: AlertWebhookPayload, background_tasks: BackgroundTasks
+):
     """
     Webhook endpoint for receiving Splunk correlation alerts.
 
@@ -322,8 +334,7 @@ async def get_alert_history(
                 category_enum = AlertCategory(category)
             except ValueError:
                 raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid category: {category}"
+                    status_code=400, detail=f"Invalid category: {category}"
                 )
 
         severity_enum = None
@@ -332,8 +343,7 @@ async def get_alert_history(
                 severity_enum = AlertSeverity(severity)
             except ValueError:
                 raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid severity: {severity}"
+                    status_code=400, detail=f"Invalid severity: {severity}"
                 )
 
         history = receiver.get_alert_history(
@@ -366,8 +376,7 @@ async def test_send_event():
 
         if not config.enabled and not config.mock_mode:
             raise HTTPException(
-                status_code=400,
-                detail="Splunk integration is not enabled"
+                status_code=400, detail="Splunk integration is not enabled"
             )
 
         connector = get_connector()
@@ -388,10 +397,7 @@ async def test_send_event():
                 "mock_mode": config.mock_mode,
             }
         else:
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to send test event"
-            )
+            raise HTTPException(status_code=500, detail="Failed to send test event")
 
     except HTTPException:
         raise
