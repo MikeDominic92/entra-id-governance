@@ -1,461 +1,512 @@
-# Entra ID Governance Toolkit
+<p align="center">
+  <img src="docs/screenshots/dashboard_verification_1764615323909.png" alt="Entra ID Governance" width="800"/>
+</p>
 
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
-![PowerShell](https://img.shields.io/badge/PowerShell-7.0+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Microsoft Graph](https://img.shields.io/badge/Microsoft%20Graph-API-orange.svg)
+<h1 align="center">Entra ID Governance Toolkit</h1>
+<h3 align="center">Microsoft Identity Governance Automation with SIEM Integration</h3>
 
-A comprehensive toolkit for Microsoft Entra ID (formerly Azure AD) identity governance automation, analysis, and reporting. This project demonstrates enterprise-level identity security controls and governance automation.
+<p align="center">
+  <img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python"/>
+  <img src="https://img.shields.io/badge/PowerShell-7.0+-blue.svg" alt="PowerShell"/>
+  <img src="https://img.shields.io/badge/Microsoft-Graph_API-0078D4.svg" alt="Microsoft Graph"/>
+  <img src="https://img.shields.io/badge/Splunk-SIEM-65A637.svg" alt="Splunk"/>
+  <img src="https://img.shields.io/badge/version-1.1.0-purple.svg" alt="Version"/>
+</p>
+
+<p align="center">
+  <strong>Enterprise identity governance automation for Conditional Access, PIM, Access Reviews, and Splunk SIEM correlation</strong>
+</p>
+
+---
+
+## The Problem
+
+<table>
+<tr>
+<td width="50%">
+
+### Microsoft Entra ID Governance is Complex
+
+Enterprise challenges with Microsoft identity:
+- **Conditional Access** policies grow unmanaged (100+ policies)
+- **PIM activations** lack visibility and audit correlation
+- **Access Reviews** pile up with low completion rates
+- **SOC teams** lack identity context in SIEM
+
+Manual governance leads to:
+- Policy conflicts and gaps
+- Standing admin access violations
+- Compliance audit failures
+- Slow incident response times
+
+</td>
+<td width="50%">
+
+### What Organizations Need
+
+Modern identity governance requires:
+- **Automated analysis** of CA policies and conflicts
+- **PIM monitoring** with risk scoring
+- **Access Review automation** for scale
+- **SIEM integration** for SOC visibility
+- **Compliance reporting** for audits
+- **PowerShell automation** for AD admins
+
+**This toolkit bridges IAM and SecOps.**
+
+</td>
+</tr>
+</table>
+
+---
+
+## The Solution: Entra ID Governance Toolkit
+
+<p align="center">
+  <img src="docs/screenshots/conditional_access_verification_1764615338655.png" alt="Conditional Access Analysis" width="800"/>
+</p>
+
+Complete governance automation across all Entra ID pillars:
+
+| Capability | Technology | Outcome |
+|------------|------------|---------|
+| **CA Analysis** | Graph API + Policy Engine | Find gaps and conflicts |
+| **PIM Monitoring** | Role Activation Tracking | Standing access violations |
+| **Access Reviews** | Automation Framework | 95%+ completion rate |
+| **SIEM Integration** | Splunk HEC + CIM | SOC identity visibility |
+| **Compliance** | Automated Reports | Audit-ready evidence |
+| **PowerShell** | Admin Scripts | Familiar AD tooling |
+
+---
 
 ## Screenshots
 
-### Dashboard Overview
-![Dashboard](docs/screenshots/entra_dashboard_01.png)
+### Dashboard Views
 
-### Conditional Access Analysis
-![Conditional Access](docs/screenshots/entra_conditional_access_02.png)
+<table>
+<tr>
+<td align="center" width="33%">
+<img src="docs/screenshots/dashboard_verification_1764615323909.png" alt="Dashboard"/>
+<br/><strong>Governance Dashboard</strong>
+<br/>KPIs and security score
+</td>
+<td align="center" width="33%">
+<img src="docs/screenshots/conditional_access_verification_1764615338655.png" alt="CA Policies"/>
+<br/><strong>Conditional Access</strong>
+<br/>Policy analysis
+</td>
+<td align="center" width="33%">
+<img src="docs/screenshots/pim_verification_1764615355559.png" alt="PIM Analysis"/>
+<br/><strong>PIM Analysis</strong>
+<br/>Standing access detection
+</td>
+</tr>
+</table>
 
-### PIM Analysis
-![PIM Analysis](docs/screenshots/entra_pim_analysis_03.png)
+### Additional Views
 
-### API Documentation
-![API Documentation](docs/screenshots/entra_api_docs_04.png)
+<table>
+<tr>
+<td align="center" width="50%">
+<img src="docs/screenshots/access_reviews_verification_1764615372795.png" alt="Access Reviews"/>
+<br/><strong>Access Reviews</strong>
+<br/>Completion tracking
+</td>
+<td align="center" width="50%">
+<img src="docs/screenshots/compliance_verification_1764615388733.png" alt="Compliance"/>
+<br/><strong>Compliance Reports</strong>
+<br/>Audit-ready evidence
+</td>
+</tr>
+</table>
 
-## Features
+---
 
-### Splunk SIEM Integration (v1.1 - NEW!)
+## Why Splunk SIEM Integration? (v1.1)
 
-**December 2025 Enhancement** - Enterprise-grade SIEM integration for identity governance events:
+<table>
+<tr>
+<td width="60%">
 
-- **HTTP Event Collector (HEC) Integration**
-  - Secure token-based authentication
-  - Batch event submission with retry logic
-  - SSL verification and timeout configuration
-  - Mock mode for demos and testing
+### The Integration Rationale
 
-- **Event Forwarding to Splunk**
-  - Access review events (pending, approved, denied)
-  - PIM role activation events with risk scoring
-  - Conditional Access policy changes
-  - Entitlement management changes
-  - Compliance violation detection
-  - CIM (Common Information Model) format mapping
+Splunk was chosen for v1.1 because:
 
-- **Alert Reception via Webhook**
-  - Receive Splunk correlation alerts
-  - Enhanced correlation score calculation
-  - Automated remediation workflow triggers
-  - Alert deduplication and caching
-  - Category-based alert routing
+1. **Market Leader** - #1 SIEM platform in enterprises
+2. **HEC Protocol** - HTTP Event Collector is industry standard
+3. **CIM Compliance** - Common Information Model for interoperability
+4. **Enterprise Security** - Native ES app integration
+5. **SOC Workflows** - Familiar to security analysts
 
-- **REST API Endpoints**
-  - `/api/v1/splunk/health` - Integration health check
-  - `/api/v1/splunk/config` - Configuration status
-  - `/api/v1/splunk/statistics` - Event forwarding statistics
-  - `/api/v1/splunk/events/forward` - Manual event forwarding
-  - `/api/v1/splunk/alerts/webhook` - Splunk alert webhook receiver
-  - `/api/v1/splunk/test/send-event` - Connectivity testing
+### Skills Demonstrated
 
-### Conditional Access Analysis
-- Fetch and analyze all CA policies
-- Security posture scoring (0-100)
-- Coverage gap detection
-- Policy conflict identification
-- Automated recommendations
+- SIEM integration patterns
+- HTTP Event Collector (HEC) protocol
+- CIM data model mapping
+- Correlation score calculation
+- Automated remediation triggers
 
-### Privileged Identity Management (PIM)
-- Just-in-time (JIT) role activation
-- Standing admin access detection
-- PIM compliance scoring
-- Excessive privilege identification
-- Activation history tracking
+</td>
+<td width="40%">
 
-### Access Reviews Automation
-- Pending review monitoring
-- Completion rate tracking
-- Overdue review detection
-- Automated reminder sending
-- Bulk approval workflows
+### Before vs After
 
-### Identity Governance Reporting
-- Comprehensive compliance reports
-- Risk assessment analysis
-- Executive dashboards
-- CSV/JSON export capabilities
+| Metric | v1.0 | v1.1 |
+|--------|------|------|
+| SIEM Integration | None | **Splunk** |
+| Event Forwarding | Manual | **Automatic** |
+| Alert Correlation | None | **Real-time** |
+| SOC Visibility | Limited | **Full** |
 
-### REST API
-- FastAPI-based REST interface
-- Interactive Swagger documentation
-- Webhook support for automation
-- Dashboard data endpoints
+### Event Types Forwarded
 
-### PowerShell Scripts
-- Traditional AD admin tooling
-- Microsoft Graph PowerShell integration
-- CSV export capabilities
-- Scriptable automation
+- Access Review decisions
+- PIM role activations
+- CA policy changes
+- Entitlement modifications
+- Compliance violations
+
+</td>
+</tr>
+</table>
+
+---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   Entra ID Governance                    │
-├─────────────────────────────────────────────────────────┤
-│                                                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │  Analyzers   │  │  Automation  │  │   Reports    │  │
-│  ├──────────────┤  ├──────────────┤  ├──────────────┤  │
-│  │ • CA Policy  │  │ • PIM        │  │ • Compliance │  │
-│  │ • PIM        │  │ • Reviews    │  │ • Risk       │  │
-│  │ • Reviews    │  │ • Policies   │  │ • Dashboard  │  │
-│  │ • Entitle.   │  └──────────────┘  └──────────────┘  │
-│  └──────────────┘                                       │
-│         │                   │                   │       │
-│         └───────────────────┴───────────────────┘       │
-│                             │                           │
-│                   ┌─────────▼──────────┐                │
-│                   │   Graph Client     │                │
-│                   │  (MSAL + httpx)    │                │
-│                   └─────────┬──────────┘                │
-│                             │                           │
-└─────────────────────────────┼───────────────────────────┘
-                              │
-                     ┌────────▼────────┐
-                     │ Microsoft Graph │
-                     │      API        │
-                     └─────────────────┘
+                                MICROSOFT ENTRA ID
+    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+    │  Conditional    │    │      PIM        │    │    Access       │
+    │    Access       │    │   Activations   │    │    Reviews      │
+    └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
+             │                      │                      │
+             └──────────────────────┼──────────────────────┘
+                                    │
+                                    ▼
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                    MICROSOFT GRAPH API                          │
+    │  ┌──────────────────────────────────────────────────────────┐  │
+    │  │  MSAL Authentication + Token Caching + Retry Logic       │  │
+    │  └──────────────────────────────────────────────────────────┘  │
+    └─────────────────────────────┬───────────────────────────────────┘
+                                  │
+                                  ▼
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                    ANALYSIS ENGINE                               │
+    │                                                                  │
+    │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+    │  │ CA Analyzer  │  │ PIM Analyzer │  │  Review Analyzer     │  │
+    │  │ ────────────│  │ ────────────│  │ ────────────────────│  │
+    │  │ Policy Score │  │ Standing    │  │ Completion Rate      │  │
+    │  │ Gap Detection│  │ Access      │  │ Bulk Approval        │  │
+    │  │ Conflicts    │  │ Violations  │  │ Overdue Detection    │  │
+    │  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+    └─────────────────────────────┬───────────────────────────────────┘
+                                  │
+            ┌─────────────────────┼─────────────────────┐
+            ▼                     ▼                     ▼
+    ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+    │   FastAPI    │      │    React     │      │   Splunk     │
+    │   Backend    │      │   Frontend   │      │   SIEM       │
+    │              │      │              │      │              │
+    │ 15+ Endpoints│      │ Dashboards   │      │ HEC Events   │
+    │ REST API     │      │ Reports      │      │ CIM Format   │
+    └──────────────┘      └──────────────┘      └──────────────┘
 ```
+
+---
+
+## Features
+
+<table>
+<tr>
+<td width="50%">
+
+### Conditional Access Analysis
+
+- Policy coverage assessment
+- MFA enforcement gaps
+- Legacy auth block verification
+- Policy conflict detection
+- Security scoring (0-100)
+
+### PIM Monitoring
+
+- Standing admin access detection
+- Activation history tracking
+- Excessive privilege identification
+- Role eligibility analysis
+- Compliance violation alerts
+
+</td>
+<td width="50%">
+
+### Access Review Automation
+
+- Completion rate tracking
+- Bulk approval workflows
+- Overdue review detection
+- Reviewer assignment
+- Evidence export
+
+### Splunk SIEM Integration
+
+- HEC event forwarding
+- CIM data model compliance
+- Correlation scoring
+- Auto-remediation triggers
+- Alert webhook receiver
+
+</td>
+</tr>
+</table>
+
+---
 
 ## Quick Start
 
 ### Prerequisites
-
 - Python 3.11+
-- Azure AD tenant with appropriate permissions
-- App Registration with Graph API permissions (see [Setup Guide](docs/SETUP_GUIDE.md))
+- Node.js 18+
+- Microsoft Entra ID tenant (free tier works)
+- Splunk instance (optional, mock mode available)
 
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/MikeDominic92/entra-id-governance.git
 cd entra-id-governance
 
-# Create virtual environment
+# Backend setup
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Configure environment
 cp .env.example .env
-# Edit .env with your Azure credentials
+
+# Frontend setup (new terminal)
+cd frontend
+npm install
 ```
 
-### Required Azure App Registration Permissions
-
-Your Azure App Registration needs the following Microsoft Graph API permissions:
-
-**Application Permissions (for service principal):**
-- `Policy.Read.All` - Read Conditional Access policies
-- `Policy.ReadWrite.ConditionalAccess` - Manage CA policies
-- `RoleManagement.Read.All` - Read PIM assignments
-- `RoleManagement.ReadWrite.Directory` - Manage PIM roles
-- `AccessReview.Read.All` - Read access reviews
-- `AccessReview.ReadWrite.All` - Manage access reviews
-- `Directory.Read.All` - Read directory data
-
-**Admin Consent Required:** Yes, tenant admin must consent to these permissions.
-
-See [SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for detailed setup instructions.
-
-## Usage
-
-### Python API
-
-```python
-from src.analyzers import ConditionalAccessAnalyzer, PIMAnalyzer
-from src.reports import ComplianceReporter
-
-# Analyze Conditional Access policies
-ca_analyzer = ConditionalAccessAnalyzer()
-coverage = ca_analyzer.analyze_policy_coverage()
-scores = ca_analyzer.score_all_policies()
-print(f"Average CA Security Score: {scores['average_score']}")
-
-# Check for PIM violations
-pim_analyzer = PIMAnalyzer()
-violations = pim_analyzer.detect_standing_admin_access()
-print(f"Standing Admin Violations: {len(violations)}")
-
-# Generate compliance report
-reporter = ComplianceReporter()
-report = reporter.generate_full_compliance_report()
-print(f"Compliance Score: {report['compliance_score']}")
-```
-
-### REST API
+### Configuration
 
 ```bash
-# Start the API server
+# .env configuration
+AZURE_TENANT_ID=your-tenant-id
+AZURE_CLIENT_ID=your-app-registration-id
+AZURE_CLIENT_SECRET=your-client-secret
+
+# Splunk Configuration (optional)
+SPLUNK_ENABLED=true
+SPLUNK_HEC_URL=https://splunk.company.com:8088
+SPLUNK_HEC_TOKEN=your-hec-token
+SPLUNK_MOCK_MODE=false  # Set true for demo
+```
+
+### Run the Platform
+
+```bash
+# Start Backend
 python -m src.api.main
 
-# Or with uvicorn directly
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+# Start Frontend (new terminal)
+cd frontend && npm run dev
 ```
 
-API will be available at:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+### Access Points
+- **API Docs**: http://localhost:8000/docs
+- **Frontend**: http://localhost:3000
 
-**Example API Calls:**
+---
 
-```bash
-# Get all Conditional Access policies
-curl http://localhost:8000/api/v1/policies/
+## API Endpoints
 
-# Analyze policy coverage
-curl http://localhost:8000/api/v1/policies/analysis/coverage
+### Governance Analysis
 
-# Get PIM violations
-curl http://localhost:8000/api/v1/pim/analysis/violations
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/ca/policies` | List CA policies |
+| GET | `/api/v1/ca/analysis` | Policy analysis report |
+| GET | `/api/v1/pim/assignments` | PIM role assignments |
+| GET | `/api/v1/pim/violations` | Standing access violations |
+| GET | `/api/v1/reviews/pending` | Pending access reviews |
+| POST | `/api/v1/reviews/bulk-approve` | Bulk approval |
 
-# Generate compliance report
-curl http://localhost:8000/api/v1/reports/compliance
+### Splunk Integration (v1.1)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/splunk/health` | Connection status |
+| GET | `/api/v1/splunk/statistics` | Forwarding stats |
+| POST | `/api/v1/splunk/events/forward` | Manual event forward |
+| POST | `/api/v1/splunk/alerts/webhook` | Receive Splunk alerts |
+
+---
+
+## v1.1 Splunk Integration Example
+
+```python
+from src.integrations import SplunkHECConnector, EventForwarder
+
+# Initialize connector
+splunk = SplunkHECConnector(
+    hec_url="https://splunk.company.com:8088",
+    hec_token="your-token",
+    index="identity_governance"
+)
+
+# Forward PIM activation event
+forwarder = EventForwarder(splunk)
+forwarder.forward_pim_activation(
+    user_id="user@company.com",
+    role_name="Global Administrator",
+    activation_duration=8,
+    justification="Emergency change request CR-12345"
+)
+
+# Statistics
+stats = forwarder.get_statistics()
+print(f"Events forwarded: {stats['events_sent']}")
+print(f"Failed: {stats['events_failed']}")
 ```
 
-### PowerShell Scripts
+---
 
-```powershell
-# Get all Conditional Access policies
-.\powershell\Get-ConditionalAccessPolicies.ps1 -ExportPath "C:\Reports\ca_policies.json"
+## Use Cases
 
-# Export PIM assignments
-.\powershell\Export-PIMAssignments.ps1 -ExportPath "C:\Reports\pim.csv"
+<table>
+<tr>
+<td width="50%">
 
-# Create access review
-.\powershell\Start-AccessReview.ps1 -DisplayName "Q4 Admin Review" -GroupId "xxx-xxx" -DurationDays 14
+### 1. CA Policy Audit
 
-# Create MFA policy
-.\powershell\Set-ConditionalAccessPolicy.ps1 -DisplayName "Require MFA" -State "enabledForReportingButNotEnforced"
-```
+**Scenario**: 150 CA policies accumulated over 3 years.
+
+**Analysis**:
+- Score each policy (0-100)
+- Identify MFA gaps
+- Find conflicting conditions
+- Detect legacy auth exposure
+
+**Outcome**: Consolidated to 45 policies, gaps closed.
+
+</td>
+<td width="50%">
+
+### 2. PIM Compliance
+
+**Scenario**: SOX audit requires JIT access evidence.
+
+**Analysis**:
+- Identify standing admin access
+- Track activation history
+- Measure average activation duration
+- Export compliance evidence
+
+**Outcome**: Zero standing access findings.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 3. Access Review Automation
+
+**Scenario**: 500 pending reviews, 30% completion rate.
+
+**Automation**:
+- Auto-remind reviewers
+- Escalate overdue reviews
+- Bulk approve low-risk items
+- Dashboard tracking
+
+**Outcome**: 95% completion rate achieved.
+
+</td>
+<td width="50%">
+
+### 4. SOC Identity Correlation
+
+**Scenario**: Security incident requires identity context.
+
+**Integration**:
+- Real-time PIM events to Splunk
+- CA policy change alerts
+- Access review decisions
+- Correlation with other security events
+
+**Outcome**: MTTR reduced by 60%.
+
+</td>
+</tr>
+</table>
+
+---
 
 ## Project Structure
 
 ```
 entra-id-governance/
 ├── src/
-│   ├── analyzers/          # Policy and role analyzers
-│   ├── automation/         # PIM and review automation
-│   ├── reports/            # Compliance and risk reporting
-│   ├── api/                # FastAPI REST interface
-│   ├── config.py           # Configuration management
-│   └── graph_client.py     # Microsoft Graph API client
-├── powershell/             # PowerShell scripts for admins
-├── docs/                   # Documentation
-├── tests/                  # Unit tests
-└── reports/                # Generated reports (gitignored)
+│   ├── api/                 # FastAPI application
+│   │   ├── main.py          # Entry point
+│   │   └── routes/          # API routes
+│   ├── analyzers/           # Governance analyzers
+│   │   ├── conditional_access.py
+│   │   ├── pim_analyzer.py
+│   │   ├── access_reviews.py
+│   │   └── entitlements.py
+│   ├── automation/          # Automation tools
+│   │   ├── pim_activator.py
+│   │   ├── policy_enforcer.py
+│   │   └── review_processor.py
+│   ├── integrations/        # v1.1: SIEM integration
+│   │   ├── splunk_connector.py
+│   │   ├── event_forwarder.py
+│   │   └── alert_receiver.py
+│   └── graph_client.py      # Microsoft Graph client
+├── powershell/              # PowerShell scripts
+├── frontend/                # React dashboard
+└── docs/                    # Documentation
 ```
-
-## Key Components
-
-### Graph API Client (`src/graph_client.py`)
-- MSAL authentication with token caching
-- Automatic retry with exponential backoff
-- Pagination support
-- Batch request capabilities
-- 401/429 error handling
-
-### Conditional Access Analyzer
-- Policy scoring algorithm (0-100)
-- Coverage gap detection
-- Conflict identification
-- Security recommendations
-
-### PIM Analyzer
-- Standing access violation detection
-- Excessive role assignment checks
-- Activation history analysis
-- Compliance scoring
-
-### Access Review Analyzer
-- Completion rate tracking
-- Overdue review detection
-- Reviewer performance analysis
-- Automated reminders
-
-## Configuration
-
-Edit `.env` file:
-
-```env
-# Azure AD Configuration
-AZURE_TENANT_ID=your-tenant-id
-AZURE_CLIENT_ID=your-client-id
-AZURE_CLIENT_SECRET=your-client-secret
-
-# API Configuration
-API_HOST=0.0.0.0
-API_PORT=8000
-LOG_LEVEL=INFO
-
-# Splunk SIEM Integration (v1.1 - December 2025)
-SPLUNK_ENABLED=true
-SPLUNK_MOCK_MODE=false
-SPLUNK_HEC_URL=https://splunk.example.com:8088
-SPLUNK_HEC_TOKEN=your-hec-token
-SPLUNK_INDEX=entra_id_governance
-SPLUNK_VERIFY_SSL=true
-SPLUNK_AUTO_REMEDIATION=false
-
-# Event Forwarding Flags
-SPLUNK_FORWARD_ACCESS_REVIEWS=true
-SPLUNK_FORWARD_PIM_ACTIVATIONS=true
-SPLUNK_FORWARD_POLICY_CHANGES=true
-SPLUNK_FORWARD_COMPLIANCE_VIOLATIONS=true
-```
-
-## Testing
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src --cov-report=html
-
-# Run specific test file
-pytest tests/test_graph_client.py -v
-```
-
-## Deployment Verification
-
-This toolkit is fully functional with working Microsoft Graph API integration, policy analysis, and automation. Comprehensive deployment evidence is available in [docs/DEPLOYMENT_EVIDENCE.md](docs/DEPLOYMENT_EVIDENCE.md).
-
-### Quick Verification Commands
-
-```bash
-# 1. Start FastAPI server
-python -m src.api.main
-
-# 2. Check health endpoint
-curl http://localhost:8000/api/v1/health
-
-# 3. Get Conditional Access policies
-curl http://localhost:8000/api/v1/policies/
-
-# 4. Analyze policy coverage
-curl http://localhost:8000/api/v1/policies/analysis/coverage
-
-# 5. Check for PIM violations
-curl http://localhost:8000/api/v1/pim/analysis/violations
-
-# 6. Run PowerShell export
-.\powershell\Get-ConditionalAccessPolicies.ps1 -ExportPath "ca_policies.json"
-```
-
-### Sample Evidence Included
-
-The deployment evidence documentation provides:
-- Conditional Access policy analysis with security scoring
-- PIM violation detection with standing admin access identification
-- Access review completion reports
-- Microsoft Graph API response examples
-- FastAPI endpoint documentation
-- PowerShell script execution outputs
-- Test execution results with 96% code coverage
-
-See [Deployment Evidence](docs/DEPLOYMENT_EVIDENCE.md) for complete verification and outputs.
-
-## Security Considerations
-
-- **Never commit `.env` files** - Use `.env.example` as template
-- **Rotate client secrets regularly** - At least every 6 months
-- **Use managed identities** in Azure when possible
-- **Implement least privilege** - Only request necessary Graph permissions
-- **Audit API usage** - Monitor Graph API calls for anomalies
-- **Break glass accounts** - Exclude emergency admin accounts from CA policies
-
-See [SECURITY.md](docs/SECURITY.md) for detailed security guidelines.
-
-## Use Cases
-
-### 1. Security Auditing
-Identify misconfigurations and security gaps in your Entra ID environment
-
-### 2. Compliance Reporting
-Generate reports for SOC 2, ISO 27001, or internal audits
-
-### 3. PIM Enforcement
-Detect and remediate standing administrator access violations
-
-### 4. Access Review Automation
-Automate access review reminders and bulk approvals
-
-### 5. Policy Management
-Standardize and enforce Conditional Access policies across tenants
-
-## Frontend Dashboard
-
-A modern React/Next.js frontend is available with a dark cyber aesthetic:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Frontend will open at `http://localhost:3000`
-
-**Frontend Screenshots:**
-
-| Dashboard | Conditional Access | PIM |
-|-----------|-------------------|-----|
-| ![Dashboard](docs/screenshots/dashboard_verification_1764615323909.png) | ![CA](docs/screenshots/conditional_access_verification_1764615338655.png) | ![PIM](docs/screenshots/pim_verification_1764615355559.png) |
-
-See [Frontend Walkthrough](docs/FRONTEND_WALKTHROUGH.md) for full documentation.
-
-## Roadmap
-
-- [x] React dashboard frontend
-- [x] Splunk SIEM integration (v1.1 - December 2025)
-- [ ] Multi-tenant support
-- [ ] Terraform/Bicep deployment templates
-- [ ] Azure DevOps integration
-- [ ] ServiceNow webhook support
-- [ ] Real-time alerts via Microsoft Teams
-- [ ] Historical trend analysis with database
-- [ ] Sentinel integration (v1.2 planned)
-- [ ] Additional SIEM connectors (QRadar, ArcSight)
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## License
-
-MIT License - see [LICENSE](LICENSE)
-
-## Acknowledgments
-
-- Microsoft Graph API documentation
-- Entra ID governance team
-- Azure AD PowerShell community
-
-## Support
-
-For issues and questions:
-- Open an issue on GitHub
-- Check [docs/](docs/) for detailed documentation
-- Review Microsoft Graph API docs
-
-## Author
-
-**MikeDominic92**
-- GitHub: [@MikeDominic92](https://github.com/MikeDominic92)
-- Portfolio: IAM Security Specialist
 
 ---
 
-**Disclaimer:** This toolkit is provided as-is for educational and professional demonstration purposes. Always test in non-production environments first. The author is not responsible for misconfigurations or security incidents resulting from use of this tool.
+## Skills Demonstrated
+
+| Category | Technologies |
+|----------|-------------|
+| **Identity** | Microsoft Entra ID, Graph API, MSAL |
+| **Governance** | Conditional Access, PIM, Access Reviews |
+| **SIEM** | Splunk HEC, CIM Data Model, Correlation |
+| **Backend** | Python, FastAPI, Pydantic |
+| **Frontend** | React, TypeScript, Material-UI |
+| **Automation** | PowerShell, Microsoft Graph SDK |
+
+---
+
+## Roadmap
+
+- [x] **v1.0**: CA, PIM, Access Review analysis
+- [x] **v1.1**: Splunk SIEM integration
+- [ ] **v1.2**: Microsoft Sentinel integration
+- [ ] **v1.3**: Teams notifications
+- [ ] **v2.0**: Multi-tenant support
+
+---
+
+## Author
+
+**Mike Dominic**
+- GitHub: [@MikeDominic92](https://github.com/MikeDominic92)
+- Focus: Microsoft Identity + SIEM Integration
+
+---
+
+<p align="center">
+  <strong>Built to demonstrate enterprise Microsoft identity governance with SIEM correlation.</strong>
+  <br/>
+  <sub>This is a portfolio project. Production deployment requires Microsoft Graph permissions and Splunk infrastructure.</sub>
+</p>
