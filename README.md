@@ -501,12 +501,26 @@ entra-id-governance/
 
 **Mike Dominic**
 - GitHub: [@MikeDominic92](https://github.com/MikeDominic92)
-- Focus: Microsoft Identity + SIEM Integration
+- Focus: IAM Governance, Compliance Automation, Zero Trust Architecture
+
+---
+
+## Chainguard IT Engineer (Identity/IAM) Alignment
+
+This project demonstrates key competencies for senior IAM engineering roles:
+
+| Requirement | Evidence |
+|-------------|----------|
+| Zero Trust architecture | Conditional Access policies with device compliance |
+| IAM governance and RBAC | PIM role management and entitlement controls |
+| SOC 2/ISO 27001/NIST compliance | Control mappings in `docs/compliance/` |
+| Audit evidence preparation | Evidence generator documentation |
+| Access review automation | Access review completion tracking |
 
 ---
 
 <p align="center">
-  <strong>Built to demonstrate enterprise Microsoft identity governance with SIEM correlation.</strong>
+  <strong>Enterprise Entra ID Governance with Compliance Automation</strong>
   <br/>
-  <sub>This is a portfolio project. Production deployment requires Microsoft Graph permissions and Splunk infrastructure.</sub>
+  <sub>Demonstrates Conditional Access, PIM, Access Reviews, and SOC 2/ISO 27001 Compliance</sub>
 </p>
