@@ -66,7 +66,7 @@ Modern identity governance requires:
 ## The Solution: Entra ID Governance Toolkit
 
 <p align="center">
-  <img src="docs/screenshots/conditional_access_verification_1764615338655.png" alt="Conditional Access Analysis" width="800"/>
+  <img src="docs/images/ca-new.png" alt="Conditional Access Analysis" width="800"/>
 </p>
 
 Complete governance automation across all Entra ID pillars:
@@ -94,12 +94,12 @@ Complete governance automation across all Entra ID pillars:
 <br/>KPIs and security score
 </td>
 <td align="center" width="33%">
-<img src="docs/screenshots/conditional_access_verification_1764615338655.png" alt="CA Policies"/>
+<img src="docs/images/ca-new.png" alt="CA Policies"/>
 <br/><strong>Conditional Access</strong>
 <br/>Policy analysis
 </td>
 <td align="center" width="33%">
-<img src="docs/screenshots/pim_verification_1764615355559.png" alt="PIM Analysis"/>
+<img src="docs/images/pim-new.png" alt="PIM Analysis"/>
 <br/><strong>PIM Analysis</strong>
 <br/>Standing access detection
 </td>
