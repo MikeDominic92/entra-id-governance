@@ -22,35 +22,6 @@
 
 ---
 
-## Key Results & Impact
-
-<table>
-<tr>
-<td align="center" width="25%">
-<h3>150→45</h3>
-<strong>Policy Consolidation</strong>
-<br/>70% reduction
-</td>
-<td align="center" width="25%">
-<h3>95%</h3>
-<strong>Review Completion</strong>
-<br/>Up from 30%
-</td>
-<td align="center" width="25%">
-<h3>60%</h3>
-<strong>MTTR Reduction</strong>
-<br/>SIEM correlation
-</td>
-<td align="center" width="25%">
-<h3>2.3M</h3>
-<strong>Events/Month</strong>
-<br/>Forwarded to Splunk
-</td>
-</tr>
-</table>
-
----
-
 ## The Problem
 
 <table>
