@@ -9,13 +9,45 @@
   <img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python"/>
   <img src="https://img.shields.io/badge/PowerShell-7.0+-blue.svg" alt="PowerShell"/>
   <img src="https://img.shields.io/badge/Microsoft-Graph_API-0078D4.svg" alt="Microsoft Graph"/>
+  <img src="https://img.shields.io/badge/Entra_ID-Governance-0078D4.svg" alt="Entra ID"/>
   <img src="https://img.shields.io/badge/Splunk-SIEM-65A637.svg" alt="Splunk"/>
+  <img src="https://img.shields.io/badge/SOC_2-Compliant-success.svg" alt="SOC 2"/>
+  <img src="https://img.shields.io/badge/ISO_27001-Mapped-blue.svg" alt="ISO 27001"/>
   <img src="https://img.shields.io/badge/version-1.2.0-purple.svg" alt="Version"/>
 </p>
 
 <p align="center">
   <strong>Enterprise identity governance automation for Conditional Access, PIM, Access Reviews, and Splunk SIEM correlation</strong>
 </p>
+
+---
+
+## Key Results & Impact
+
+<table>
+<tr>
+<td align="center" width="25%">
+<h3>150→45</h3>
+<strong>Policy Consolidation</strong>
+<br/>70% reduction
+</td>
+<td align="center" width="25%">
+<h3>95%</h3>
+<strong>Review Completion</strong>
+<br/>Up from 30%
+</td>
+<td align="center" width="25%">
+<h3>60%</h3>
+<strong>MTTR Reduction</strong>
+<br/>SIEM correlation
+</td>
+<td align="center" width="25%">
+<h3>2.3M</h3>
+<strong>Events/Month</strong>
+<br/>Forwarded to Splunk
+</td>
+</tr>
+</table>
 
 ---
 
