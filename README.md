@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/PowerShell-7.0+-blue.svg" alt="PowerShell"/>
   <img src="https://img.shields.io/badge/Microsoft-Graph_API-0078D4.svg" alt="Microsoft Graph"/>
   <img src="https://img.shields.io/badge/Splunk-SIEM-65A637.svg" alt="Splunk"/>
-  <img src="https://img.shields.io/badge/version-1.1.0-purple.svg" alt="Version"/>
+  <img src="https://img.shields.io/badge/version-1.2.0-purple.svg" alt="Version"/>
 </p>
 
 <p align="center">
